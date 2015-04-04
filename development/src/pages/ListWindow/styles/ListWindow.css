@@ -21,7 +21,7 @@
     top: 50%;
     left: 10%;
     margin-top: -10px;
-    margin-left: -20px;
+    margin-left: -10px;
 }
 
 .ListWindow .head .search-bar {
@@ -121,6 +121,20 @@
     left: 113px;
 }
 
+.button-group-list {
+    position: absolute;
+    bottom: 7px;
+    left: 10px;
+}
+
+.button-group-list i {
+    color: #2f3640;
+}
+
+.button-group-list i:hover {
+    color: #353b48;
+}
+
 .list-description {
     position: absolute;
     color: white;
@@ -169,6 +183,12 @@
     width: 100%;
     position: absolute;
     top: 30px;
+}
+
+.item-wrapper__title {
+    position: relative;
+    top: -5px;
+    left: 20px;
 }
 
 .item-wrapper__option {

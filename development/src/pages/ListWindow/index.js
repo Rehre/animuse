@@ -17,15 +17,20 @@ class ListWindow extends React.Component {
 
     this.state = {
       audiolist: [],
+      grouplist: {
+        folder: [],
+      },
       selectedItem: '',
       totalTime: 0,
       totalSize: 0,
       searchTerm: '',
       sortValue: '',
+      groupByValue: '',
       isSearchBarShow: false,
       isLoadingShow: false,
       isAddModalShow: false,
       isSortModalShow: false,
+      isGroupByModalShow: false,
     };
 
     this.toggleModal = this.toggleModal.bind(this);
@@ -46,6 +51,7 @@ class ListWindow extends React.Component {
     this.renderLoading = this.renderLoading.bind(this);
     this.renderAddModal = this.renderAddModal.bind(this);
     this.renderSortModal = this.renderSortModal.bind(this);
+    this.renderGroupByModal = this.renderGroupByModal.bind(this);
   }
 
   componentDidMount() {
@@ -91,10 +97,11 @@ class ListWindow extends React.Component {
   }
 
   toggleModal(modal) {
-    const { isAddModalShow, isSortModalShow } = this.state;
+    const { isAddModalShow, isSortModalShow, isGroupByModalShow } = this.state;
 
     if (modal === 'add') this.setState({ isAddModalShow: !isAddModalShow });
     if (modal === 'sort') this.setState({ isSortModalShow: !isSortModalShow });
+    if (modal === 'group') this.setState({ isGroupByModalShow: !isGroupByModalShow });
   }
 
   toggleSorter(value) {
@@ -124,15 +131,34 @@ class ListWindow extends React.Component {
   }
 
   runTagUpdater() {
-    const { audiolist } = this.state;
+    const { audiolist, grouplist } = this.state;
 
     if (audiolist.length === 0) return;
 
+    const newGroupList = {};
+    const newGroupListKeys = Object.keys(grouplist);
+    const newGroupListValues = Object.values(grouplist);
+
     audiolist.forEach((item) => {
+      // get the file grouping item
+      newGroupListKeys.forEach((key, index) => {
+        if (!(item.group)) return;
+        if (!(item.group[key])) return;
+
+        // if there is group item already in values of newGroupList then dont push
+        if (!(newGroupListValues[index].includes(item.group[key]))) {
+          newGroupListValues[index].push(item.group[key]);
+        }
+
+        newGroupList[key] = newGroupListValues[index];
+      });
+      // run tag updater
       if (!(item.errorTag) && (!(item.size) || !(item.tags) || !(item.duration))) {
         ipcRenderer.send('get-song-tags', item);
       }
     });
+
+    this.setState({ grouplist: newGroupList });
   }
 
   openFolder(arg) {
@@ -149,12 +175,56 @@ class ListWindow extends React.Component {
   }
 
   deleteSingleListFile(id) {
-    const { audiolist } = this.state;
+    const {
+      audiolist,
+      totalTime,
+      totalSize,
+      grouplist,
+    } = this.state;
 
+    const currentItem = audiolist.find(item => item.id === id);
+    const groupValues = {
+      folder: currentItem.group.folder,
+    };
+
+    // delete total time and duration this item has
+    let newTotalTime = 0;
+    let newTotalSize = 0;
+    // if this item not the last item in list then substract the last item
+    if (audiolist.length > 1) {
+      if (currentItem.duration !== undefined) {
+        newTotalTime = totalTime - currentItem.duration;
+      } else {
+        newTotalTime = totalTime;
+      }
+
+      newTotalSize = (currentItem.size !== undefined) ? totalSize - currentItem.size : totalSize;
+    }
+
+    localStorage.setItem('music-total-time', JSON.stringify(newTotalTime));
+    localStorage.setItem('music-total-size', JSON.stringify(newTotalSize));
+
+    // delete item from audiolist
     const newAudioList = audiolist.filter(item => item.id !== id);
 
+    // delete the group in state this item has
+    const newGroupList = {};
+    const newGroupListValues = Object.values(grouplist);
+
+    // if there is still some file has the group then return
+    if (!(newAudioList.some(item => item.group.folder === groupValues.folder))) {
+      newGroupListValues[0] = newGroupListValues[0].filter(item => item !== groupValues.folder);
+    }
+
+    newGroupList.folder = newGroupListValues[0];
+
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
-    this.setState({ audiolist: newAudioList });
+    this.setState({
+      audiolist: newAudioList,
+      totalTime: newTotalTime,
+      totalSize: newTotalSize,
+      grouplist: newGroupList,
+    });
   }
 
   clearList() {
@@ -166,6 +236,9 @@ class ListWindow extends React.Component {
 
     this.setState({
       audiolist: [],
+      grouplist: {
+        folder: [],
+      },
       selectedItem: '',
       totalTime: 0,
       totalSize: 0,
@@ -174,22 +247,37 @@ class ListWindow extends React.Component {
 
   // this will automatically send the get-song-tags event to ipcManager
   listenToFile(file) {
-    const { audiolist } = this.state;
+    const { audiolist, grouplist } = this.state;
     const newAudioList = [...audiolist];
+    const newGroupList = {};
+    const newGroupListValues = Object.values(grouplist);
 
     const id = file.filePath.substring(file.filePath.length, file.filePath.lastIndexOf('\\') + 1) + Math.floor(Math.random() * 1000) + Math.floor(Math.random() * 1000);
     const title = file.filePath.substring(file.filePath.length, file.filePath.lastIndexOf('\\') + 1);
+    const regex = file.filePath.match(/\\.+?\\/g);
+    const folder = regex[regex.length - 1].replace(/\\/g, '');
+
     const objectFile = {
       id,
       title,
       filePath: file.filePath,
+      group: {
+        folder,
+      },
     };
+    // set the grouping
+    ['folder'].forEach((key, index) => {
+      if (!(newGroupListValues[index].includes(objectFile.group[key]))) {
+        newGroupListValues[index].push(objectFile.group[key]);
+      }
+
+      newGroupList[key] = newGroupListValues[index];
+    });
 
     newAudioList.push(objectFile);
-
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
 
-    this.setState({ audiolist: newAudioList }, () => {
+    this.setState({ audiolist: newAudioList, grouplist: newGroupList }, () => {
       ipcRenderer.send('get-song-tags', objectFile);
     });
   }
@@ -202,7 +290,7 @@ class ListWindow extends React.Component {
     const currentIndex = newAudioList.findIndex(item => item.id === file.id);
 
     newAudioList[currentIndex] = Object.assign({}, newAudioList[currentIndex], file);
-    const newTotalSize = totalSize + file.size;
+    const newTotalSize = (currentIndex > -1) ? totalSize + file.size : totalSize;
 
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
     localStorage.setItem('music-total-size', JSON.stringify(newTotalSize));
@@ -221,7 +309,8 @@ class ListWindow extends React.Component {
     newAudioList[currentIndex] = Object.assign({},
       newAudioList[currentIndex],
       { duration: file.duration });
-    const newTotalTime = totalTime + file.duration;
+
+    const newTotalTime = (currentIndex > -1) ? totalTime + file.duration : totalTime;
 
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
     localStorage.setItem('music-total-time', JSON.stringify(newTotalTime));
@@ -274,7 +363,7 @@ class ListWindow extends React.Component {
         this.sendFile(itemtoSend.id, itemtoSend.filePath);
 
         return;
-      };
+      }
 
       itemtoSend = audiolist[--currentIndex];
 
@@ -352,6 +441,11 @@ class ListWindow extends React.Component {
 
     return (
       <div className="head">
+        <Touchable
+          onClick={() => this.toggleModal('group')}
+          icon="fas fa-sort"
+          className="button-group-list"
+        />
         <span># {selectedIndex + 1} / {audiolist.length}</span>
         {this.renderSearchBar()}
       </div>
@@ -499,6 +593,7 @@ class ListWindow extends React.Component {
         closeFunction={() => this.toggleModal('sort')}
       >
         <div className="item-wrapper">
+          <h3 className="item-wrapper__title">Sort By</h3>
           <div
             className="item-wrapper__option item-wrapper__option--default"
             onClick={() => this.toggleSorter('default')}
@@ -518,6 +613,39 @@ class ListWindow extends React.Component {
     );
   }
 
+  renderGroupByModal() {
+    const { isGroupByModalShow, groupByValue } = this.state;
+
+    if (!isGroupByModalShow) return null;
+
+    const classNameSelected = 'item-wrapper__option__selector--on';
+
+    return (
+      <Modal
+        className="wrapper-groupBy-modal"
+        closeFunction={() => this.toggleModal('group')}
+      >
+        <div className="item-wrapper">
+          <h3 className="item-wrapper__title">Group By</h3>
+          <div
+            className="item-wrapper__option item-wrapper__option--default"
+            onClick={() => this.toggleGroupBy('default')}
+          >
+            <div className={`item-wrapper__option__selector ${(groupByValue === '') ? classNameSelected : null}`} />
+            <span>default</span>
+          </div>
+          <div
+            className="item-wrapper__option item-wrapper__option--folder"
+            onClick={() => this.toggleGroupBy('folder')}
+          >
+            <div className={`item-wrapper__option__selector ${(groupByValue === 'folder') ? classNameSelected : null}`} />
+            <span>folder</span>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
   render() {
     const { totalSize } = this.state;
 
@@ -528,6 +656,7 @@ class ListWindow extends React.Component {
           onMinimize={() => this.toggleCloseMinimize('minimize')}
         />
         {this.renderHead()}
+        {this.renderGroupByModal()}
         <div className="content">
           {this.renderList()}
         </div>

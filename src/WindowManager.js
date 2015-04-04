@@ -89,7 +89,7 @@ class WindowManager {
     });
     // run the developer tools if in development mode
     if (isDev) {
-      BrowserWindow.addDevToolsExtension('C:\\Users\\WIN 10\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\fmkadmapgofadopljbjfkapdkoienihi\\3.2.3_0');
+      BrowserWindow.addDevToolsExtension('C:\\Users\\WIN 10\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\fmkadmapgofadopljbjfkapdkoienihi\\3.2.4_0');
       this.mainWindow.webContents.openDevTools();
       this.listWindow.webContents.openDevTools();
       this.settingWindow.webContents.openDevTools();
