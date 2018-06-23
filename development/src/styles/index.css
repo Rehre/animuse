@@ -3,8 +3,19 @@
     src: url('./../fonts/OpenSans/OpenSans-Light.ttf');
 }
 
+@font-face{
+    font-family: 'OpenSans-LightItalic';
+    src: url('./../fonts/OpenSans/OpenSans-LightItalic.ttf');
+}
+
 * {
     margin: 0px;
     padding: 0px;
     font-family: 'OpenSans-Light'
+}
+
+i {
+   font-family: 'FontAwesome';
+   font-style: normal; 
+   color: white;
 }

@@ -1,0 +1,11 @@
+.Touchable {
+    font-size: 20px;
+}
+
+.Touchable:hover {
+    cursor: pointer;
+}
+
+.Touchable i:hover {
+    color: #dcdde1;
+}

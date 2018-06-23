@@ -1,0 +1,64 @@
+.Player {
+    height: 100%;
+    position: relative;
+    text-align: center;
+}
+
+.Player #button-open {
+    position: absolute;
+    top: 25px;
+    left: 15px;
+}
+
+.Player #button-pause-play {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    margin-left: -20px;
+    font-size: 25px;
+    text-align: center;
+    transition: all 0.2;
+}
+
+.Player #button-pause-play:active {
+    top: 25px;
+    margin-left: -18px;
+    font-size: 20px;
+}
+
+.Player #duration {
+    position: absolute;
+    top: 26px;
+    right: 15px;
+    font-size: 14px;
+    color: white;    
+}
+
+.Player #slider {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 370px;
+    margin-left: -185px;
+    height: 2px;
+    border-radius: 10px;
+    background: #f5f6fa;
+    outline: none;
+}
+
+.Player #slider:hover {
+    cursor: pointer;
+}
+
+.Player #slider::-webkit-slider-thumb {
+    -webkit-appearance: none; 
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 100px;
+    border: 2px solid #f5f6fa;
+    cursor: pointer;
+    background-color: #353b48;
+}

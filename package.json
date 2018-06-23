@@ -40,6 +40,9 @@
     "webpack-dev-server": "^3.1.4"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.1.0",
+    "btoa": "^1.2.1",
+    "jsmediatags": "^3.8.1",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-redux": "^5.0.7",

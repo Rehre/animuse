@@ -1,11 +1,16 @@
 import React from 'react';
+import '@fortawesome/fontawesome-free/css/all.css';
 
-function App() {
-  return (
-    <div className="react-app">
-      <h1>Hello, World!</h1>
-    </div>
-  );
+import MainWindow from './pages/MainWindow';
+
+class App extends React.PureComponent {
+  render() {
+    return (
+      <div className="react-app">
+        <MainWindow />
+      </div>
+    );
+  }
 }
 
 export default App;
