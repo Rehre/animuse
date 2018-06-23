@@ -1,0 +1,10 @@
+@font-face{
+    font-family: 'OpenSans-Light';
+    src: url('./../fonts/OpenSans/OpenSans-Light.ttf');
+}
+
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: 'OpenSans-Light'
+}
