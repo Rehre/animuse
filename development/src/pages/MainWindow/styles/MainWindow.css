@@ -11,42 +11,6 @@
     text-align: center;
 }
 
-.MainWindow .header .status-bar {
-    position: absolute;
-    top: 2px;
-    right: 4px;
-}
-
-.MainWindow .header .status-bar .button-status {
-    margin: 3px;
-    width: 10px;
-    height: 10px;
-    background-color: white;
-    border-radius: 100px;
-    -webkit-app-region: no-drag;
-    display: inline-block;
-}
-
-.MainWindow .header .status-bar .button-status:hover {
-    cursor: pointer;
-}
-
-#close-button {
-    background-color: #e74c3c;
-}
-
-#close-button:hover {
-    background-color: #c0392b;
-}
-
-#minimize-button {
-    background-color: #f1c40f;
-}
-
-#minimize-button:hover {
-    background-color: #f39c12;
-}
-
 .MainWindow .header h2 {
     position: absolute;
     bottom: 10px;

@@ -125,7 +125,7 @@ class Player extends React.Component {
   }
 
   render() {
-    const { file, openFile } = this.props;
+    const { file, openFile, openWindow } = this.props;
 
     return (
       <div className="Player">
@@ -134,6 +134,11 @@ class Player extends React.Component {
           onPress={openFile}
           icon="fas fa-file-audio"
           id="button-open"
+        />
+        <Touchable
+          onPress={() => openWindow('list')}
+          icon="fas fa-align-justify"
+          id="button-open-list"
         />
         {this.renderSlider()}
         {this.renderPlayButton()}
@@ -146,6 +151,7 @@ class Player extends React.Component {
 Player.propTypes = {
   file: PropTypes.string.isRequired,
   openFile: PropTypes.func.isRequired,
+  openWindow: PropTypes.func.isRequired,
 };
 
 export default Player;

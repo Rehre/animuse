@@ -1,0 +1,74 @@
+.ListWindow {
+    position: relative;
+    height: 600px;
+    overflow: hidden;
+}
+
+.ListWindow .header {
+    background-color: #353b48;
+    width: 100%;
+    height: 4%;
+    -webkit-app-region: drag;
+}
+
+.ListWindow .content {
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: nowrap;
+    height: 86%;
+    position: relative;
+}
+
+#list-ui-null {
+    font-size: 40px;
+    position: absolute;
+    color: #718093;
+    top: 50%;
+    left: 50%;
+    margin-top: -20px;
+    margin-left: -20px;
+}
+
+.ListWindow .music-list {
+   color: #f5f6fa;
+   height: 20px;
+   padding: 15px;
+   background-color: #718093;
+   border-bottom: 1px solid #353b48;
+   position: relative;
+}
+
+.ListWindow .music-list-selected {
+    background-color: #2f3640;
+}
+
+.ListWindow .music-list:hover {
+    background-color: #2f3640;
+    cursor: pointer;
+}
+
+#title-song {
+    position: absolute;
+    left: 38px;
+    font-weight: 100;
+}
+
+#button-move-item {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    color: #f5f6fa;
+    margin-top: -12px;
+}
+
+.ListWindow .footer {
+    background-color: #353b48;
+    width: 100%;
+    height: 10%;
+}
+
+#button-folder-open {
+    position: absolute;
+    bottom: 15px;
+    left: 17px;
+}

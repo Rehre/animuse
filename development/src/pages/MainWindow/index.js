@@ -3,6 +3,7 @@ import React from 'react';
 
 import './styles/MainWindow.css';
 import Player from './component/Player';
+import Statusbar from '../../common/Statusbar';
 
 const { ipcRenderer, remote } = window.require('electron');
 
@@ -30,8 +31,22 @@ class MainWindow extends React.Component {
     });
   }
 
+  openWindow(window) {
+    ipcRenderer.send('open-window', window);
+  }
+
   openFile() {
-    ipcRenderer.send('open-file', 'open');
+    ipcRenderer.send('open-file');
+  }
+
+  toggleCloseMinimize(status) {
+    if (status === 'close') {
+      ipcRenderer.send('close-app');
+    }
+
+    if (status === 'minimize') {
+      remote.getCurrentWindow().minimize();
+    }
   }
 
   renderImageThumbnail() {
@@ -51,39 +66,25 @@ class MainWindow extends React.Component {
     );
   }
 
-  renderStatusBar() {
-    return (
-      <div className="status-bar">
-        <div
-          className="button-status"
-          id="minimize-button"
-          onClick={() => {
-            remote.getCurrentWindow().minimize();
-          }}
-        />
-        <div
-          className="button-status"
-          id="close-button"
-          onClick={() => {
-            remote.getCurrentWindow().close();
-          }}
-        />
-      </div>
-    );
-  }
-
   render() {
     const { file, title } = this.state;
 
     return (
       <div className="MainWindow">
         <div className="header">
-          {this.renderStatusBar()}
+          <Statusbar
+            onClose={() => this.toggleCloseMinimize('close')}
+            onMinimze={() => this.toggleCloseMinimize('minimize')}
+          />
           {this.renderImageThumbnail()}
           <h2>{title}</h2>
         </div>
         <div className="player-container">
-          <Player file={file} openFile={this.openFile} />
+          <Player
+            file={file}
+            openFile={this.openFile}
+            openWindow={this.openWindow}
+          />
         </div>
       </div>
     );

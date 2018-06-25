@@ -7,6 +7,12 @@
 .Player #button-open {
     position: absolute;
     top: 25px;
+    left: 50px;
+}
+
+.Player #button-open-list {
+    position: absolute;
+    top: 25px;
     left: 15px;
 }
 

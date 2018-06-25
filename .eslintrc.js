@@ -1,6 +1,6 @@
 module.exports = {
     "extends": "airbnb",
-    rules: {
+    "rules": {
         "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
         "react/jsx-one-expression-per-line": "warn",
         "import/no-extraneous-dependencies": "warn",
@@ -11,5 +11,6 @@ module.exports = {
         "no-return-assign": "off",
         "jsx-a11y/media-has-caption": "off",
         "no-plusplus": "off",
+        "no-param-reassign": "off",
     }
 };

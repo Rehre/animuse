@@ -1,38 +1,15 @@
 const {
   app,
-  BrowserWindow,
   ipcMain,
   dialog,
 } = require('electron');
-const fs = require('fs');
-const jsmediatags = require('jsmediatags');
-const btoa = require('btoa');
 
-function createWindow() {
-  let win = new BrowserWindow({
-    width: 400,
-    height: 200,
-    frame: false,
-    maximizable: false,
-    webPreferences: { webSecurity: false },
-  });
-  const url = (process.env.PRODUCTION) ? './production/index.html' : 'http://localhost:3000';
-
-  win.on('closed', () => {
-    win = null;
-  });
-
-  if (!process.env.PRODUCTION) {
-    win.webContents.openDevTools();
-  }
-
-  win.loadURL(url);
-  win.isResizable(false);
-}
+const openMP3 = require('./utils/openMP3');
+const createWindow = require('./utils/createWindow');
+const searchMP3 = require('./utils/searchMP3');
 
 app.on('ready', createWindow);
 
-// Quit when all windows are closed.
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
@@ -41,6 +18,9 @@ app.on('window-all-closed', () => {
   }
 });
 
+ipcMain.on('close-app', () => {
+  app.quit();
+});
 
 ipcMain.on('open-file', (event) => {
   const file = dialog.showOpenDialog({
@@ -53,33 +33,28 @@ ipcMain.on('open-file', (event) => {
 
   if (!file) return;
 
-  fs.readFile(file[0], (err, data) => {
-    if (err) alert('error reading file');
+  openMP3(file[0], (err, fileObject) => {
+    if (err) event.sender.send('error-opening-mp3', err);
 
-    jsmediatags.read(data, {
-      onSuccess: (tag) => {
-        let pictureData = tag.tags.picture;
+    event.sender.send('opened-file', fileObject);
+  });
+});
 
-        if (pictureData) {
-          let binary = '';
-          const bytes = new Uint8Array(pictureData.data);
-          const len = bytes.byteLength;
+ipcMain.on('open-folder', (event) => {
+  const directory = dialog.showOpenDialog({
+    title: 'Open Directories',
+    properties: ['openDirectory'],
+  });
 
-          for (let i = 0; i < len; i++) {
-            binary += String.fromCharCode(bytes[i]);
-          }
+  if (!directory) return;
 
-          pictureData = `data:${pictureData.format};base64,${btoa(binary)}`;
-        }
+  event.sender.send('clear-list'); // clear the list when searching for new file
 
-        event.sender.send('opened-file', {
-          file: file[0],
-          pictureData,
-        });
-      },
-      onError: (error) => {
-        alert(error);
-      },
+  searchMP3(directory[0], (file) => {
+    openMP3(file, (err, fileObject) => {
+      if (err) event.sender.send('error-opening-searched-file', err);
+
+      event.sender.send('add-file-to-list', fileObject);
     });
   });
 });
