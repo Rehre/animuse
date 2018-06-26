@@ -1,5 +1,4 @@
 const { BrowserWindow, ipcMain, app } = require('electron');
-const openMP3 = require('./openMP3');
 
 let mainWindow; // main window variable
 let listWindow; // list window variable
@@ -66,6 +65,10 @@ function createWindow() {
 
   ipcMain.on('send-file', (event, arg) => {
     mainWindow.webContents.send('opened-file', arg);
+  });
+
+  ipcMain.on('change-player-song', (event, arg) => {
+    listWindow.webContents.send('change-song', arg);
   });
 }
 

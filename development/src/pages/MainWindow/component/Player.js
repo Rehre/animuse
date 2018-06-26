@@ -19,6 +19,7 @@ class Player extends React.Component {
     this.renderDuration = this.renderDuration.bind(this);
     this.renderSlider = this.renderSlider.bind(this);
     this.setSongTime = this.setSongTime.bind(this);
+    this.changePlayerSong = this.changePlayerSong.bind(this);
   }
 
   componentDidMount() {
@@ -29,7 +30,10 @@ class Player extends React.Component {
     });
 
     this.audio.addEventListener('ended', () => {
-      this.setState({ currentTime: 0 }, this.togglePlayPause);
+      this.setState({ currentTime: 0 }, () => {
+        this.changePlayerSong('next');
+        this.togglePlayPause();
+      });
     });
 
     this.audio.addEventListener('loadedmetadata', () => {
@@ -46,6 +50,12 @@ class Player extends React.Component {
 
   setSongTime(event) {
     this.audio.currentTime = event.target.value;
+  }
+
+  changePlayerSong(state) {
+    const { changeSong } = this.props;
+
+    changeSong(state);
   }
 
   togglePlayPause() {
@@ -141,7 +151,17 @@ class Player extends React.Component {
           id="button-open-list"
         />
         {this.renderSlider()}
+        <Touchable
+          onPress={() => this.changePlayerSong('previous')}
+          icon="fas fa-backward"
+          id="button-previous"
+        />
         {this.renderPlayButton()}
+        <Touchable
+          onPress={() => this.changePlayerSong('next')}
+          icon="fas fa-forward"
+          id="button-next"
+        />
         {this.renderDuration()}
       </div>
     );
@@ -151,6 +171,7 @@ class Player extends React.Component {
 Player.propTypes = {
   file: PropTypes.string.isRequired,
   openFile: PropTypes.func.isRequired,
+  changeSong: PropTypes.func.isRequired,
   openWindow: PropTypes.func.isRequired,
 };
 

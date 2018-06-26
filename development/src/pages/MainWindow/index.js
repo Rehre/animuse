@@ -35,6 +35,10 @@ class MainWindow extends React.Component {
     ipcRenderer.send('open-window', window);
   }
 
+  changeFile(arg) {
+    ipcRenderer.send('change-player-song', arg);
+  }
+
   openFile() {
     ipcRenderer.send('open-file');
   }
@@ -83,6 +87,7 @@ class MainWindow extends React.Component {
           <Player
             file={file}
             openFile={this.openFile}
+            changeSong={this.changeFile}
             openWindow={this.openWindow}
           />
         </div>

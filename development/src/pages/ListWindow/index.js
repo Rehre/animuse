@@ -19,6 +19,7 @@ class ListWindow extends React.Component {
     this.renderList = this.renderList.bind(this);
     this.listenToFile = this.listenToFile.bind(this);
     this.sendFile = this.sendFile.bind(this);
+    this.changeSong = this.changeSong.bind(this);
   }
 
   componentDidMount() {
@@ -28,6 +29,10 @@ class ListWindow extends React.Component {
 
     ipcRenderer.on('clear-list', () => {
       this.setState({ audiolist: [] });
+    });
+
+    ipcRenderer.on('change-song', (event, arg) => {
+      this.changeSong(arg);
     });
   }
 
@@ -47,6 +52,32 @@ class ListWindow extends React.Component {
     });
 
     this.setState({ audiolist: newAudioList });
+  }
+
+  changeSong(state) {
+    const { audiolist, selectedItem } = this.state;
+
+    let currentIndex = audiolist.findIndex(item => item.id === selectedItem);
+
+    if (state === 'next') {
+      if (currentIndex >= audiolist.length - 1) return;
+
+      const itemtoSend = audiolist[++currentIndex];
+
+      this.setState({ selectedItem: itemtoSend.id }, () => {
+        ipcRenderer.send('send-file', itemtoSend);
+      });
+    }
+
+    if (state === 'previous') {
+      if (currentIndex <= 0) return;
+
+      const itemtoSend = audiolist[--currentIndex];
+
+      this.setState({ selectedItem: itemtoSend.id }, () => {
+        ipcRenderer.send('send-file', itemtoSend);
+      });
+    }
   }
 
   toggleCloseMinimize(status) {
