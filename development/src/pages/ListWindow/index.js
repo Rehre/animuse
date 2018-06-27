@@ -69,9 +69,7 @@ class ListWindow extends React.Component {
 
       const itemtoSend = audiolist[++currentIndex];
 
-      this.setState({ selectedItem: itemtoSend.id }, () => {
-        ipcRenderer.send('send-file', itemtoSend.file);
-      });
+      this.sendFile(itemtoSend.id, itemtoSend.file);
     }
 
     if (state === 'previous') {
@@ -79,9 +77,7 @@ class ListWindow extends React.Component {
 
       const itemtoSend = audiolist[--currentIndex];
 
-      this.setState({ selectedItem: itemtoSend.id }, () => {
-        ipcRenderer.send('send-file', itemtoSend.file);
-      });
+      this.sendFile(itemtoSend.id, itemtoSend.file);
     }
   }
 
