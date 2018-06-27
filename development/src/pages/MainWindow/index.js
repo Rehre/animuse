@@ -71,7 +71,7 @@ class MainWindow extends React.Component {
   }
 
   render() {
-    const { file, title } = this.state;
+    const { file, title, pictureData } = this.state;
 
     return (
       <div className="MainWindow">
@@ -81,7 +81,7 @@ class MainWindow extends React.Component {
             onMinimze={() => this.toggleCloseMinimize('minimize')}
           />
           {this.renderImageThumbnail()}
-          <h2>{title}</h2>
+          <h2 className={(pictureData) ? 'title title--white' : 'title'}>{title}</h2>
         </div>
         <div className="player-container">
           <Player

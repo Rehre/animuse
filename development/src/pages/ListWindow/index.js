@@ -20,9 +20,14 @@ class ListWindow extends React.Component {
     this.listenToFile = this.listenToFile.bind(this);
     this.sendFile = this.sendFile.bind(this);
     this.changeSong = this.changeSong.bind(this);
+    this.clearList = this.clearList.bind(this);
+    this.moveItem = this.moveItem.bind(this);
   }
 
   componentDidMount() {
+    const audiolist = JSON.parse(localStorage.getItem('music-list')) || '';
+    this.setState({ audiolist });
+
     ipcRenderer.on('add-file-to-list', (event, arg) => {
       this.listenToFile(arg);
     });
@@ -36,10 +41,9 @@ class ListWindow extends React.Component {
     });
   }
 
-  listenToFile(arg) {
+  listenToFile(file) {
     const { audiolist } = this.state;
     const newAudioList = [...audiolist];
-    const { file, pictureData } = arg;
 
     const id = file.substring(file.length, file.lastIndexOf('\\') + 1) + Math.floor(Math.random * 1000);
     const title = file.substring(file.length, file.lastIndexOf('\\') + 1);
@@ -48,8 +52,9 @@ class ListWindow extends React.Component {
       id,
       title,
       file,
-      pictureData,
     });
+
+    localStorage.setItem('music-list', JSON.stringify(newAudioList));
 
     this.setState({ audiolist: newAudioList });
   }
@@ -65,7 +70,7 @@ class ListWindow extends React.Component {
       const itemtoSend = audiolist[++currentIndex];
 
       this.setState({ selectedItem: itemtoSend.id }, () => {
-        ipcRenderer.send('send-file', itemtoSend);
+        ipcRenderer.send('send-file', itemtoSend.file);
       });
     }
 
@@ -75,9 +80,20 @@ class ListWindow extends React.Component {
       const itemtoSend = audiolist[--currentIndex];
 
       this.setState({ selectedItem: itemtoSend.id }, () => {
-        ipcRenderer.send('send-file', itemtoSend);
+        ipcRenderer.send('send-file', itemtoSend.file);
       });
     }
+  }
+
+  moveItem(id, idMoveTo) {
+    const { audioList } = this.state;
+    const newList = [...audioList];
+
+    const itemIndex = newList.findIndex(item => item.id === id);
+    const itemToIndex = newList.findIndex(item => item.id === idMoveTo);
+
+    newList.splice(itemToIndex - 1, 0, newList[itemIndex]);
+    newList.splice(itemIndex, 1);
   }
 
   toggleCloseMinimize(status) {
@@ -88,6 +104,11 @@ class ListWindow extends React.Component {
     if (status === 'minimize') {
       remote.getCurrentWindow().minimize();
     }
+  }
+
+  clearList() {
+    localStorage.removeItem('music-list');
+    this.setState({ audiolist: [] });
   }
 
   openFolder() {
@@ -108,17 +129,17 @@ class ListWindow extends React.Component {
     }
 
     return audiolist.map((item) => {
-      const title = (item.title.length > 40) ? `${item.title.substring(0, 40)}...` : item.title;
+      const title = (item.title.length > 30) ? `${item.title.substring(0, 30)}...` : item.title;
       const className = (selectedItem === item.id) ? 'music-list music-list-selected' : 'music-list';
 
       return (
         <div
           className={className}
           key={item.id}
-          onClick={() => this.sendFile(item.id, item)}
+          onClick={() => this.sendFile(item.id, item.file)}
         >
           <Touchable
-            onPress={this.openFolder}
+            onPress={() => {}}
             icon="fas fa-align-justify"
             id="button-move-item"
           />
@@ -145,6 +166,11 @@ class ListWindow extends React.Component {
             onPress={this.openFolder}
             icon="fas fa-folder-open"
             id="button-folder-open"
+          />
+          <Touchable
+            onPress={this.clearList}
+            icon="fas fa-ban"
+            id="button-list-clear"
           />
         </div>
       </div>

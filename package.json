@@ -2,7 +2,7 @@
   "name": "animuse",
   "version": "0.0.1",
   "description": "Lightweight Music Player",
-  "main": "main.js",
+  "main": "src/MainManager.js",
   "scripts": {
     "start": "electron .",
     "build": "webpack",

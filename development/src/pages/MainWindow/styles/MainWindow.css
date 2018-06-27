@@ -3,7 +3,7 @@
 }
 
 .MainWindow .header {
-    background-color: #7f8fa6;
+    background-color: white;
     height: 70%;
     -webkit-app-region: drag;
     position: relative;
@@ -11,22 +11,28 @@
     text-align: center;
 }
 
-.MainWindow .header h2 {
+.MainWindow .header .title {
     position: absolute;
     bottom: 10px;
     left: 10px;
     font-size: 20px;
-    color: white;
+    color: #353b48;
     font-family: 'OpenSans-LightItalic';
     white-space: nowrap;
     z-index: 1;
 }
 
+.MainWindow .header .title--white {
+  color: white;
+}
+
 .MainWindow .header #play-icon {
-    font-size: 20px;
+    font-size: 40px;
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 50%;
+    left: 50%;
+    margin-top: -20px;
+    margin-left: -20px;
     color: #353b48;
     z-index: 0;
 }

@@ -37,6 +37,7 @@
    background-color: white;
    border-bottom: 1px solid #353b48;
    position: relative;
+   user-select: none;
 }
 
 .ListWindow .music-list-selected {
@@ -81,4 +82,10 @@
     position: absolute;
     bottom: 15px;
     left: 17px;
+}
+
+#button-list-clear {
+    position: absolute;
+    bottom: 15px;
+    left: 50px;
 }
