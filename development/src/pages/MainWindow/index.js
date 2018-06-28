@@ -31,18 +31,6 @@ class MainWindow extends React.Component {
     });
   }
 
-  openWindow(window) {
-    ipcRenderer.send('open-window', window);
-  }
-
-  changeFile(arg) {
-    ipcRenderer.send('change-player-song', arg);
-  }
-
-  openFile() {
-    ipcRenderer.send('open-file');
-  }
-
   toggleCloseMinimize(status) {
     if (status === 'close') {
       ipcRenderer.send('close-app');
@@ -51,6 +39,18 @@ class MainWindow extends React.Component {
     if (status === 'minimize') {
       remote.getCurrentWindow().minimize();
     }
+  }
+
+  openWindow(window) {
+    ipcRenderer.send('open-window', window);
+  }
+
+  openFile() {
+    ipcRenderer.send('open-file');
+  }
+
+  changeFile(arg) {
+    ipcRenderer.send('change-player-song', arg);
   }
 
   renderImageThumbnail() {
@@ -81,7 +81,7 @@ class MainWindow extends React.Component {
             onMinimze={() => this.toggleCloseMinimize('minimize')}
           />
           {this.renderImageThumbnail()}
-          <h2 className={(pictureData) ? 'title title--white' : 'title'}>{title}</h2>
+          <h2 className={(pictureData) ? 'title title--white' : 'title'}>{title || 'no-title'}</h2>
         </div>
         <div className="player-container">
           <Player

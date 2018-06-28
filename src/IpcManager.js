@@ -6,6 +6,7 @@ const {
 
 const openMP3 = require('./utils/openMP3');
 const searchMP3 = require('./utils/searchMP3');
+const getMediaTags = require('./utils/getMediaTags');
 const WindowManager = require('./WindowManager');
 
 // when the close event is called from the mainWindow then quit the app
@@ -42,7 +43,7 @@ ipcMain.on('open-folder', (event) => {
   event.sender.send('clear-list'); // clear the list when searching for new file
 
   searchMP3(directory[0], (file) => {
-    event.sender.send('add-file-to-list', file);
+    event.sender.send('add-file-to-list', { filePath: file });
   });
 });
 // use this to open a listWindow
@@ -62,4 +63,12 @@ ipcMain.on('send-file', (event, arg) => {
 // use this to send the change event(next or previous) to list window
 ipcMain.on('change-player-song', (event, arg) => {
   WindowManager.listWindow.webContents.send('change-song', arg);
+});
+
+ipcMain.on('get-song-tags', (event, audioFile) => {
+  const { filePath } = audioFile;
+
+  getMediaTags(filePath, (err, data) => {
+    event.sender.send('update-tags', Object.assign({}, audioFile, data));
+  });
 });

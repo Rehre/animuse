@@ -3,35 +3,37 @@ const jsmediatags = require('jsmediatags');
 const btoa = require('btoa');
 
 function openMP3(file, callback) {
-  fs.readFile(file, (err, data) => {
-    if (err) callback(err, null);
+  let data = fs.readFileSync(file);
 
-    jsmediatags.read(data, {
-      onSuccess: (tag) => {
-        let pictureData = tag.tags.picture;
+  if (!data) callback('error', null);
 
-        if (pictureData) {
-          let binary = '';
-          const bytes = new Uint8Array(pictureData.data);
-          const len = bytes.byteLength;
+  jsmediatags.read(data, {
+    onSuccess: (tag) => {
+      let pictureData = tag.tags.picture;
 
-          for (let i = 0; i < len; i++) {
-            binary += String.fromCharCode(bytes[i]);
-          }
+      if (pictureData) {
+        let binary = '';
+        const bytes = new Uint8Array(pictureData.data);
+        const len = bytes.byteLength;
 
-          pictureData = `data:${pictureData.format};base64,${btoa(binary)}`;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
         }
 
-        callback(null, {
-          file,
-          pictureData,
-        });
-      },
-      onError: (error) => {
-        callback(error, null);
-      },
-    });
+        pictureData = `data:${pictureData.format};base64,${btoa(binary)}`;
+      }
+
+      callback(null, {
+        file,
+        pictureData,
+      });
+    },
+    onError: (error) => {
+      callback(error, { file });
+    },
   });
+
+  data = undefined;
 }
 
 module.exports = openMP3;

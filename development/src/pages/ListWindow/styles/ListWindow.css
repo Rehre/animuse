@@ -11,11 +11,30 @@
     -webkit-app-region: drag;
 }
 
+.ListWindow .head {
+    width: 100%;
+    height: 7%;
+    text-align: center;
+    background-color: #EEEEEE;
+    position: relative;
+    box-shadow: 0px 0.1px 2px #2f3640;
+    z-index: 2;
+}
+
+.ListWindow .head span {
+    color: black;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -10px;
+    margin-left: -20px;
+}
+
 .ListWindow .content {
     overflow-y: auto;
     overflow-x: hidden;
     white-space: nowrap;
-    height: 86%;
+    height: 79%;
     position: relative;
     background-color: white;
 }
@@ -35,13 +54,14 @@
    height: 20px;
    padding: 15px;
    background-color: white;
-   border-bottom: 1px solid #353b48;
+   border-bottom: 1px solid #718093;
    position: relative;
    user-select: none;
 }
 
 .ListWindow .music-list-selected {
     background-color: #2f3640;
+    border-bottom: 1px solid #2f3640;
     color: white;
 }
 
@@ -49,23 +69,35 @@
     background-color: #2f3640;
     cursor: pointer;
     color: white;
+    border-bottom: 1px solid #2f3640;
 }
 
 #title-song {
     position: absolute;
     left: 38px;
+    top: 8px;
+    font-size: 13px;
+    font-weight: 100;
+}
+
+#album-and-size {
+    position: absolute;
+    left: 38px;
+    top: 24px;
+    font-size: 12px;
     font-weight: 100;
 }
 
 #button-move-item {
     position: absolute;
     top: 50%;
-    left: 10px;
-    margin-top: -12px;
+    left: 9px;
+    margin-top: -18px;
+    font-size: 25px;
 }
 
 #button-move-item i {
-    color: #353b48;
+    color: #718093;
 }
 
 .ListWindow .music-list-selected #button-move-item i, .ListWindow .music-list:hover #button-move-item i {
@@ -76,6 +108,8 @@
     background-color: #353b48;
     width: 100%;
     height: 10%;
+    box-shadow: 0px 0px 2px black;
+    z-index: 2;
 }
 
 #button-folder-open {
