@@ -25,11 +25,12 @@ class ListWindow extends React.Component {
     this.renderHead = this.renderHead.bind(this);
     this.updateTags = this.updateTags.bind(this);
     this.updateDuration = this.updateDuration.bind(this);
+    this.runStorageChecker = this.runStorageChecker.bind(this);
+    this.runTagUpdater = this.runTagUpdater.bind(this);
   }
 
   componentDidMount() {
-    const audiolist = JSON.parse(localStorage.getItem('music-list')) || [];
-    this.setState({ audiolist });
+    this.runStorageChecker();
 
     ipcRenderer.on('add-file-to-list', (event, arg) => {
       this.listenToFile(arg);
@@ -49,6 +50,23 @@ class ListWindow extends React.Component {
 
     ipcRenderer.on('update-duration', (event, arg) => {
       this.updateDuration(arg);
+    });
+  }
+
+  runStorageChecker() {
+    const audiolist = JSON.parse(localStorage.getItem('music-list')) || [];
+    this.setState({ audiolist }, this.runTagUpdater);
+  }
+
+  runTagUpdater() {
+    const { audiolist } = this.state;
+
+    if (audiolist.length === 0) return;
+
+    audiolist.forEach((item) => {
+      if (!(item.size) || !(item.tags) || !(item.duration)) {
+        ipcRenderer.send('get-song-tags', item);
+      }
     });
   }
 
@@ -90,10 +108,9 @@ class ListWindow extends React.Component {
   updateTags(file) {
     const { audiolist } = this.state;
     const newAudioList = [...audiolist];
-
     const currentIndex = newAudioList.findIndex(item => item.id === file.id);
 
-    newAudioList[currentIndex] = file;
+    newAudioList[currentIndex] = Object.assign({}, newAudioList[currentIndex], file);
 
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
 
@@ -108,7 +125,10 @@ class ListWindow extends React.Component {
 
     const currentIndex = newAudioList.findIndex(item => item.id === file.id);
 
-    newAudioList[currentIndex] = file;
+    newAudioList[currentIndex] = Object.assign({},
+      newAudioList[currentIndex],
+      { duration: file.duration });
+
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
 
     this.setState({ audiolist: newAudioList });
