@@ -88,6 +88,13 @@
     font-weight: 100;
 }
 
+#duration {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    font-size: 13px;
+}
+
 #button-move-item {
     position: absolute;
     top: 50%;

@@ -3,11 +3,15 @@ const {
   ipcMain,
   dialog,
 } = require('electron');
+const mp3Duration = require('mp3-duration');
 
 const openMP3 = require('./utils/openMP3');
 const searchMP3 = require('./utils/searchMP3');
 const getMediaTags = require('./utils/getMediaTags');
 const WindowManager = require('./WindowManager');
+
+let tagRunDuration = 0;
+let timeRunDuration = 0;
 
 // when the close event is called from the mainWindow then quit the app
 ipcMain.on('close-app', () => {
@@ -41,6 +45,8 @@ ipcMain.on('open-folder', (event) => {
   if (!directory) return;
 
   event.sender.send('clear-list'); // clear the list when searching for new file
+  tagRunDuration = 0; // clear the time duration for getting tag function to run smoothly
+  timeRunDuration = 0; // same goes for this
 
   searchMP3(directory[0], (file) => {
     event.sender.send('add-file-to-list', { filePath: file });
@@ -68,7 +74,21 @@ ipcMain.on('change-player-song', (event, arg) => {
 ipcMain.on('get-song-tags', (event, audioFile) => {
   const { filePath } = audioFile;
 
-  getMediaTags(filePath, (err, data) => {
+  tagRunDuration += 500;
+
+  setTimeout(() => getMediaTags(filePath, (err, data) => {
     event.sender.send('update-tags', Object.assign({}, audioFile, data));
-  });
+  }), tagRunDuration);
+});
+
+ipcMain.on('get-song-duration', (event, audioFile) => {
+  const { filePath } = audioFile;
+
+  timeRunDuration += 500;
+
+  setTimeout(() => mp3Duration(filePath, (err, data) => {
+    if (err) event.sender.send('error-update-duration', Object.assign({}, audioFile, { duration: data }));
+
+    event.sender.send('update-duration', Object.assign({}, audioFile, { duration: data }));
+  }), timeRunDuration);
 });

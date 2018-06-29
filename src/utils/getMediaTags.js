@@ -9,7 +9,7 @@ function getMediaTags(filePath, callback) {
 
   jsmediatags.read(data, {
     onSuccess: (tag) => {
-      setTimeout(() => callback(null, {
+      callback(null, {
         filePath,
         size,
         tags: {
@@ -17,13 +17,13 @@ function getMediaTags(filePath, callback) {
           album: tag.tags.album,
           artist: tag.tags.artist,
         },
-      }), 1000);
+      });
     },
     onError: (error) => {
-      setTimeout(() => callback(error, {
+      callback(error, {
         filePath,
         size,
-      }), 1000);
+      });
     },
   });
 

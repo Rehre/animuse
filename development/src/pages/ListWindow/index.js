@@ -24,6 +24,7 @@ class ListWindow extends React.Component {
     this.moveItem = this.moveItem.bind(this);
     this.renderHead = this.renderHead.bind(this);
     this.updateTags = this.updateTags.bind(this);
+    this.updateDuration = this.updateDuration.bind(this);
   }
 
   componentDidMount() {
@@ -44,6 +45,10 @@ class ListWindow extends React.Component {
 
     ipcRenderer.on('update-tags', (event, arg) => {
       this.updateTags(arg);
+    });
+
+    ipcRenderer.on('update-duration', (event, arg) => {
+      this.updateDuration(arg);
     });
   }
 
@@ -78,7 +83,7 @@ class ListWindow extends React.Component {
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
 
     this.setState({ audiolist: newAudioList }, () => {
-      setTimeout(() => ipcRenderer.send('get-song-tags', objectFile), 1000);
+      ipcRenderer.send('get-song-tags', objectFile);
     });
   }
 
@@ -90,6 +95,20 @@ class ListWindow extends React.Component {
 
     newAudioList[currentIndex] = file;
 
+    localStorage.setItem('music-list', JSON.stringify(newAudioList));
+
+    this.setState({ audiolist: newAudioList }, () => {
+      ipcRenderer.send('get-song-duration', file);
+    });
+  }
+
+  updateDuration(file) {
+    const { audiolist } = this.state;
+    const newAudioList = [...audiolist];
+
+    const currentIndex = newAudioList.findIndex(item => item.id === file.id);
+
+    newAudioList[currentIndex] = file;
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
 
     this.setState({ audiolist: newAudioList });
@@ -153,8 +172,16 @@ class ListWindow extends React.Component {
       let artistHeader = 'unknown artist';
       let albumHeader = 'unknown album';
       let sizeHeader = 'unknown size';
+      let duration = '';
 
       if (item.size) sizeHeader = `${item.size}MB`;
+
+      if (item.duration) {
+        const secs = Math.trunc(item.duration % 60).toString();
+        const minutes = Math.trunc(item.duration / 60).toString();
+
+        duration = `${'00'.substr(minutes.length) + minutes}:${'00'.substr(secs.length) + secs}`;
+      }
 
       if (item.tags) {
         if (item.tags.title) {
@@ -171,9 +198,9 @@ class ListWindow extends React.Component {
       }
 
       let title = `${titleHeader} - ${artistHeader}`;
-      title = (title.length > 40) ? `${title.substring(0, 40)}...` : title;
+      title = (title.length > 30) ? `${title.substring(0, 30)}...` : title;
       let albumAndSize = `${albumHeader} - ${sizeHeader}`;
-      albumAndSize = (albumAndSize.length > 40) ? `${albumAndSize.substring(0, 40)}...` : albumAndSize;
+      albumAndSize = (albumAndSize.length > 30) ? `${albumAndSize.substring(0, 30)}...` : albumAndSize;
 
       return (
         <div
@@ -188,6 +215,7 @@ class ListWindow extends React.Component {
           />
           <h4 id="title-song">{title}</h4>
           <span id="album-and-size">{albumAndSize}</span>
+          <span id="duration">{duration}</span>
         </div>
       );
     });
