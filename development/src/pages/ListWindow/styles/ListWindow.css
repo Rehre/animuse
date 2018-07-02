@@ -130,3 +130,11 @@
     bottom: 15px;
     left: 50px;
 }
+
+.list-description {
+    position: absolute;
+    color: white;
+    font-size: 14px;
+    bottom: 20px;
+    right: 17px;
+}

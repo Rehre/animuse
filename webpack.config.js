@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const MiniCSSExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJSWebpackPlugin = require('uglifyjs-webpack-plugin');
@@ -43,6 +44,9 @@ module.exports = {
       template: './development/public/index.html',
       filename: '../index.html',
       inject: 'body',
+    }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production'),
     }),
     new MiniCSSExtractPlugin(),
     new UglifyJSWebpackPlugin(),

@@ -27,6 +27,8 @@ function openMP3(file, callback) {
         file,
         pictureData,
       });
+
+      tag = null;
     },
     onError: (error) => {
       callback(error, { file });

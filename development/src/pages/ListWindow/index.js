@@ -14,6 +14,8 @@ class ListWindow extends React.Component {
     this.state = {
       audiolist: [],
       selectedItem: '',
+      totalTime: 0,
+      totalSize: 0,
     };
 
     this.renderList = this.renderList.bind(this);
@@ -27,6 +29,7 @@ class ListWindow extends React.Component {
     this.updateDuration = this.updateDuration.bind(this);
     this.runStorageChecker = this.runStorageChecker.bind(this);
     this.runTagUpdater = this.runTagUpdater.bind(this);
+    this.renderTotalTime = this.renderTotalTime.bind(this);
   }
 
   componentDidMount() {
@@ -37,7 +40,7 @@ class ListWindow extends React.Component {
     });
 
     ipcRenderer.on('clear-list', () => {
-      this.setState({ audiolist: [] });
+      this.clearList();
     });
 
     ipcRenderer.on('change-song', (event, arg) => {
@@ -55,7 +58,9 @@ class ListWindow extends React.Component {
 
   runStorageChecker() {
     const audiolist = JSON.parse(localStorage.getItem('music-list')) || [];
-    this.setState({ audiolist }, this.runTagUpdater);
+    const totalSize = JSON.parse(localStorage.getItem('music-total-size')) || 0;
+    const totalTime = JSON.parse(localStorage.getItem('music-total-time')) || 0;
+    this.setState({ audiolist, totalSize, totalTime }, this.runTagUpdater);
   }
 
   runTagUpdater() {
@@ -84,6 +89,7 @@ class ListWindow extends React.Component {
     ipcRenderer.send('open-folder');
   }
 
+  // this will automatically send the get-song-tags event to ipcManager
   listenToFile(file) {
     const { audiolist } = this.state;
     const newAudioList = [...audiolist];
@@ -105,22 +111,25 @@ class ListWindow extends React.Component {
     });
   }
 
+  // this will automatically send the get-song-duration event to ipcManager
   updateTags(file) {
-    const { audiolist } = this.state;
+    const { audiolist, totalSize } = this.state;
     const newAudioList = [...audiolist];
     const currentIndex = newAudioList.findIndex(item => item.id === file.id);
 
     newAudioList[currentIndex] = Object.assign({}, newAudioList[currentIndex], file);
+    const newTotalSize = totalSize + file.size;
 
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
+    localStorage.setItem('music-total-size', JSON.stringify(newTotalSize));
 
-    this.setState({ audiolist: newAudioList }, () => {
+    this.setState({ audiolist: newAudioList, totalSize: newTotalSize }, () => {
       ipcRenderer.send('get-song-duration', file);
     });
   }
 
   updateDuration(file) {
-    const { audiolist } = this.state;
+    const { audiolist, totalTime } = this.state;
     const newAudioList = [...audiolist];
 
     const currentIndex = newAudioList.findIndex(item => item.id === file.id);
@@ -128,10 +137,12 @@ class ListWindow extends React.Component {
     newAudioList[currentIndex] = Object.assign({},
       newAudioList[currentIndex],
       { duration: file.duration });
+    const newTotalTime = totalTime + file.duration;
 
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
+    localStorage.setItem('music-total-time', JSON.stringify(newTotalTime));
 
-    this.setState({ audiolist: newAudioList });
+    this.setState({ audiolist: newAudioList, totalTime: newTotalTime });
   }
 
   changeSong(state) {
@@ -167,6 +178,7 @@ class ListWindow extends React.Component {
     newList.splice(itemIndex, 1);
   }
 
+  // send file to mainWindow
   sendFile(id, filepath) {
     this.setState({ selectedItem: id });
 
@@ -175,7 +187,36 @@ class ListWindow extends React.Component {
 
   clearList() {
     localStorage.removeItem('music-list');
-    this.setState({ audiolist: [], selectedItem: '' });
+    localStorage.removeItem('music-total-size');
+    localStorage.removeItem('music-total-time');
+    // cancel all the asynchronous function in ipcManager
+    ipcRenderer.send('cancel-all-async-function');
+
+    this.setState({
+      audiolist: [],
+      selectedItem: '',
+      totalTime: 0,
+      totalSize: 0,
+    });
+  }
+
+  renderTotalTime() {
+    const { totalTime } = this.state;
+
+    const hours = `${Math.trunc(totalTime / 3600)}`;
+    const newtotalTime = totalTime % 3600;
+    const minutes = `${Math.trunc(newtotalTime / 60)}`;
+    const seconds = `${Math.trunc(newtotalTime % 60)}`;
+
+    return (
+      <span className="list-description_duration">
+        {'00'.substr(hours.length) + hours}
+        :
+        {'00'.substr(minutes.length) + minutes}
+        :
+        {'00'.substr(seconds.length) + seconds}
+      </span>
+    );
   }
 
   renderList() {
@@ -254,6 +295,8 @@ class ListWindow extends React.Component {
   }
 
   render() {
+    const { totalSize } = this.state;
+
     return (
       <div className="ListWindow">
         <div className="header">
@@ -277,6 +320,13 @@ class ListWindow extends React.Component {
             icon="fas fa-ban"
             id="button-list-clear"
           />
+          <div className="list-description">
+            <span className="list-description__size">{totalSize.toFixed(2)}MB</span>
+            {' '}
+            /
+            {' '}
+            {this.renderTotalTime()}
+          </div>
         </div>
       </div>
     );

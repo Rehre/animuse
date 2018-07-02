@@ -2,6 +2,8 @@ const {
   app,
   ipcMain,
   dialog,
+  Notification,
+  // nativeImage,
 } = require('electron');
 const mp3Duration = require('mp3-duration');
 
@@ -12,6 +14,8 @@ const WindowManager = require('./WindowManager');
 
 let tagRunDuration = 0;
 let timeRunDuration = 0;
+
+let waitedAsyncFunction = []; // save all the async function in here
 
 // when the close event is called from the mainWindow then quit the app
 ipcMain.on('close-app', () => {
@@ -32,7 +36,17 @@ ipcMain.on('open-file', (event) => {
   openMP3(file[0], (err, fileObject) => {
     if (err) event.sender.send('error-opening-mp3', err);
 
+    const songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\'));
+
     event.sender.send('opened-file', fileObject);
+
+    const playNotification = new Notification({
+      title: 'Playing',
+      body: songTitle,
+      // icon: nativeImage.createFromDataURL(fileObject.pictureData),
+    });
+
+    playNotification.show();
   });
 });
 // use this to open a folder in the listWindow
@@ -62,23 +76,47 @@ ipcMain.on('open-window', (event, arg) => {
 ipcMain.on('send-file', (event, arg) => {
   openMP3(arg, (err, fileObject) => {
     if (err) WindowManager.mainWindow.webContents.send('send-failed-error', err);
+    const songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\'));
 
     WindowManager.mainWindow.webContents.send('opened-file', fileObject);
+
+    const playNotification = new Notification({
+      title: 'Playing',
+      body: songTitle,
+      // icon: nativeImage.createFromDataURL(fileObject.pictureData),
+    });
+
+    playNotification.show();
   });
 });
 // use this to send the change event(next or previous) to list window
 ipcMain.on('change-player-song', (event, arg) => {
   WindowManager.listWindow.webContents.send('change-song', arg);
 });
-
+// cancel all the asyc function and clear the array
+ipcMain.on('cancel-all-async-function', () => {
+  waitedAsyncFunction.forEach(item => clearTimeout(item.timeout));
+  waitedAsyncFunction = [];
+});
+// use this to get the song tags (this will automatically run the get duration from the listWindow)
 ipcMain.on('get-song-tags', (event, audioFile) => {
   const { filePath } = audioFile;
 
   tagRunDuration += 500;
 
-  setTimeout(() => getMediaTags(filePath, (err, data) => {
-    event.sender.send('update-tags', Object.assign({}, audioFile, data));
-  }), tagRunDuration);
+  const id = `${filePath.substr(filePath.lastIndexOf('\\')) + Math.floor(Math.random() * 10000)}tags`;
+  const tagFunc = setTimeout(() => {
+    getMediaTags(filePath, (err, data) => {
+      const currentIndex = waitedAsyncFunction.findIndex(item => item.id === id);
+      // if this function is run eventhough the waitedAsyncFunction is cleared then return;
+      if (currentIndex < 0) return;
+      waitedAsyncFunction.splice(currentIndex, 1);
+
+      event.sender.send('update-tags', Object.assign({}, audioFile, data));
+    });
+  }, tagRunDuration);
+
+  waitedAsyncFunction.push({ id, timeout: tagFunc });
 });
 
 ipcMain.on('get-song-duration', (event, audioFile) => {
@@ -86,9 +124,19 @@ ipcMain.on('get-song-duration', (event, audioFile) => {
 
   timeRunDuration += 500;
 
-  setTimeout(() => mp3Duration(filePath, (err, data) => {
-    if (err) event.sender.send('error-update-duration', Object.assign({}, audioFile, { duration: data }));
+  const id = `${filePath.substr(filePath.lastIndexOf('\\')) + Math.floor(Math.random() * 10000)}duration`;
+  const durationFunc = setTimeout(() => {
+    mp3Duration(filePath, (err, data) => {
+      const currentIndex = waitedAsyncFunction.findIndex(item => item.id === id);
+      // if this function is run eventhough the waitedAsyncFunction is cleared then return;
+      if (currentIndex < 0) return;
+      waitedAsyncFunction.splice(currentIndex, 1);
 
-    event.sender.send('update-duration', Object.assign({}, audioFile, { duration: data }));
-  }), timeRunDuration);
+      if (err) event.sender.send('error-update-duration', Object.assign({}, audioFile, { duration: data }));
+
+      event.sender.send('update-duration', Object.assign({}, audioFile, { duration: data }));
+    });
+  }, timeRunDuration);
+
+  waitedAsyncFunction.push({ id, timeout: durationFunc });
 });

@@ -1,12 +1,16 @@
 {
   "name": "animuse",
+  "productName": "Animuse",
   "version": "0.0.1",
   "description": "Lightweight Music Player",
   "main": "src/MainManager.js",
   "scripts": {
-    "start": "electron .",
+    "start": "set PRODUCTION=true && electron .",
+    "dev": "electron .",
     "build": "webpack",
-    "dev:server": "webpack-dev-server --config webpack.dev.config.js"
+    "dev:server": "webpack-dev-server --config webpack.dev.config.js",
+    "packager":  "electron-packager ./ Animuse --ignore=development --platform=win32 --arc=x86",
+    "build": "set PRODUCTION=true && packager"
   },
   "keywords": [
     "Music",
@@ -42,6 +46,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.1.0",
     "btoa": "^1.2.1",
+    "electron-packager": "^12.1.0",
     "jsmediatags": "^3.8.1",
     "mp3-duration": "^1.1.0",
     "react": "^16.4.1",

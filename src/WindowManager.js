@@ -4,8 +4,8 @@ class WindowManager {
   constructor() {
     this.mainWindow = '';
     this.listWindow = '';
-    this.urlMain = (process.env.PRODUCTION) ? './production/index.html' : 'http://localhost:3000';
-    this.urlList = (process.env.PRODUCTION) ? './production/index.html#/list' : 'http://localhost:3000#/list';
+    this.urlMain = (process.env.PRODUCTION) ? `file://${__dirname}/../production/index.html` : 'http://localhost:3000';
+    this.urlList = (process.env.PRODUCTION) ? `file://${__dirname}/../production/index.html#/list` : 'http://localhost:3000#/list';
 
     this.initiateWindow = this.initiateWindow.bind(this);
   }
