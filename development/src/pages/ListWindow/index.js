@@ -150,6 +150,25 @@ class ListWindow extends React.Component {
 
     let currentIndex = audiolist.findIndex(item => item.id === selectedItem);
 
+    if (state === 'random') {
+      if (audiolist.length <= 0) return;
+
+      const index = Math.abs(Math.round(Math.random() * audiolist.length - 1));
+      const itemToSend = audiolist[index];
+
+      this.sendFile(itemToSend.id, itemToSend.filePath);
+    }
+
+    if (state === 'loop-all-next') {
+      let [itemToSend] = audiolist;
+
+      if (currentIndex < audiolist.length - 1) {
+        itemToSend = audiolist[++currentIndex];
+      }
+
+      this.sendFile(itemToSend.id, itemToSend.filePath);
+    }
+
     if (state === 'next') {
       if (currentIndex >= audiolist.length - 1) return;
 
@@ -321,7 +340,7 @@ class ListWindow extends React.Component {
             id="button-list-clear"
           />
           <div className="list-description">
-            <span className="list-description__size">{totalSize.toFixed(2)}MB</span>
+            <span className="list-description__size">{totalSize.toFixed(2)} MB</span>
             {' '}
             /
             {' '}

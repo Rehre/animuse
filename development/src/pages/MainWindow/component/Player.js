@@ -12,27 +12,33 @@ class Player extends React.Component {
       isPlayed: false,
       duration: 0,
       currentTime: 0,
+      isRandomized: false,
+      isLooped: false,
+      isLoopedAll: false,
     };
 
-    this.renderPlayButton = this.renderPlayButton.bind(this);
-    this.togglePlayPause = this.togglePlayPause.bind(this);
-    this.renderDuration = this.renderDuration.bind(this);
-    this.renderSlider = this.renderSlider.bind(this);
     this.setSongTime = this.setSongTime.bind(this);
     this.changePlayerSong = this.changePlayerSong.bind(this);
+    this.togglePlayPause = this.togglePlayPause.bind(this);
+    this.toggleLoop = this.toggleLoop.bind(this);
+    this.toggleRandom = this.toggleRandom.bind(this);
+    this.renderPlayButton = this.renderPlayButton.bind(this);
+    this.renderRandomButton = this.renderRandomButton.bind(this);
+    this.renderToggleLoop = this.renderToggleLoop.bind(this);
+    this.renderDuration = this.renderDuration.bind(this);
+    this.renderSlider = this.renderSlider.bind(this);
   }
 
   componentDidMount() {
     this.audio.addEventListener('canplay', () => {
       this.audio.play();
-
       this.setState({ isPlayed: true });
     });
-
+    // this event will run only if isLooped is false
     this.audio.addEventListener('ended', () => {
       this.setState({ currentTime: 0 }, () => {
-        this.changePlayerSong('next');
         this.togglePlayPause();
+        this.changePlayerSong('next');
       });
     });
 
@@ -52,8 +58,25 @@ class Player extends React.Component {
     this.audio.currentTime = event.target.value;
   }
 
+  setPlayerVolume(event) {
+    this.audio.volume = event.target.value;
+  }
+
   changePlayerSong(state) {
+    const { isRandomized, isLoopedAll } = this.state;
     const { changeSong } = this.props;
+
+    if (isRandomized) {
+      changeSong('random');
+
+      return;
+    }
+
+    if (isLoopedAll) {
+      changeSong('loop-all-next');
+
+      return;
+    }
 
     changeSong(state);
   }
@@ -73,24 +96,92 @@ class Player extends React.Component {
     this.setState({ isPlayed: !isPlayed });
   }
 
+  toggleLoop() {
+    const { isLooped, isLoopedAll } = this.state;
+
+    if (!isLooped && !isLoopedAll) {
+      this.audio.loop = true;
+      this.setState({ isLooped: true });
+    }
+
+    if (isLooped && !isLoopedAll) {
+      this.audio.loop = false;
+      this.setState({ isLooped: false, isLoopedAll: true });
+    }
+
+    if (isLoopedAll) {
+      this.setState({ isLoopedAll: false });
+    }
+  }
+
+  toggleRandom() {
+    const { isRandomized } = this.state;
+
+    this.setState({ isRandomized: !isRandomized });
+  }
+
   renderPlayButton() {
     const { isPlayed } = this.state;
+    let icon = 'fas fa-pause-circle';
 
     if (!isPlayed) {
+      icon = 'fas fa-play-circle';
+    }
+
+    return (
+      <Touchable
+        onPress={this.togglePlayPause}
+        icon={icon}
+        id="button-pause-play"
+      />
+    );
+  }
+
+  renderToggleLoop() {
+    const { isLooped, isLoopedAll } = this.state;
+
+    if (isLoopedAll) {
       return (
         <Touchable
-          onPress={this.togglePlayPause}
-          icon="fas fa-play-circle"
-          id="button-pause-play"
+          onPress={this.toggleLoop}
+          icon="fas fa-circle-notch"
+          id="button-loop-all"
+        />
+      );
+    }
+
+    if (isLooped) {
+      return (
+        <Touchable
+          onPress={this.toggleLoop}
+          icon="fas fa-redo"
+          id="button-loop-colored"
         />
       );
     }
 
     return (
       <Touchable
-        onPress={this.togglePlayPause}
-        icon="fas fa-pause-circle"
-        id="button-pause-play"
+        onPress={this.toggleLoop}
+        icon="fas fa-redo"
+        id="button-loop"
+      />
+    );
+  }
+
+  renderRandomButton() {
+    const { isRandomized } = this.state;
+    let id = 'button-random';
+
+    if (isRandomized) {
+      id = 'button-random-colored';
+    }
+
+    return (
+      <Touchable
+        onPress={this.toggleRandom}
+        icon="fas fa-random"
+        id={id}
       />
     );
   }
@@ -127,8 +218,8 @@ class Player extends React.Component {
       <input
         id="slider"
         type="range"
-        max={duration}
-        value={currentTime}
+        max={Math.trunc(duration)}
+        value={Math.trunc(currentTime)}
         onChange={this.setSongTime}
       />
     );
@@ -151,6 +242,7 @@ class Player extends React.Component {
           id="button-open-list"
         />
         {this.renderSlider()}
+        {this.renderRandomButton()}
         <Touchable
           onPress={() => this.changePlayerSong('previous')}
           icon="fas fa-backward"
@@ -162,6 +254,7 @@ class Player extends React.Component {
           icon="fas fa-forward"
           id="button-next"
         />
+        {this.renderToggleLoop()}
         {this.renderDuration()}
       </div>
     );

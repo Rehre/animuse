@@ -46,6 +46,29 @@
     margin-left: 14px;
 }
 
+#button-random, #button-random-colored {
+    position: absolute;
+    top: 25px;
+    left: 40%;
+    margin-left: -50px;
+}
+
+#button-random-colored i {
+    color: rgb(255, 97, 97);
+}
+
+#button-loop, #button-loop-colored, #button-loop-all {
+    position: absolute;
+    top: 26px;
+    left: 75%;
+    margin-left: -50px;
+    font-size: 18px;
+}
+
+#button-loop-all i, #button-loop-colored i {
+    color: rgb(255, 97, 97);
+}
+
 .Player #duration {
     position: absolute;
     top: 26px;
@@ -66,6 +89,7 @@
     border-radius: 10px;
     background: #f5f6fa;
     outline: none;
+    
 }
 
 .Player #slider:hover {
