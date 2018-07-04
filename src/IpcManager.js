@@ -11,7 +11,7 @@ const openMP3 = require('./utils/openMP3');
 const searchMP3 = require('./utils/searchMP3');
 const getMediaTags = require('./utils/getMediaTags');
 const WindowManager = require('./WindowManager');
-
+// duration for asyncFunction to run
 let tagRunDuration = 0;
 let timeRunDuration = 0;
 
@@ -89,7 +89,7 @@ ipcMain.on('send-file', (event, arg) => {
     playNotification.show();
   });
 });
-// use this to send the change event(next or previous) to list window
+// use this to send the change event(next or previous or random or loop-all-next) to list window
 ipcMain.on('change-player-song', (event, arg) => {
   WindowManager.listWindow.webContents.send('change-song', arg);
 });
@@ -118,7 +118,7 @@ ipcMain.on('get-song-tags', (event, audioFile) => {
 
   waitedAsyncFunction.push({ id, timeout: tagFunc });
 });
-
+// use this to get the song duration and send this to listWindow
 ipcMain.on('get-song-duration', (event, audioFile) => {
   const { filePath } = audioFile;
 

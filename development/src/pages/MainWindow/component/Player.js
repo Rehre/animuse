@@ -15,15 +15,20 @@ class Player extends React.Component {
       isRandomized: false,
       isLooped: false,
       isLoopedAll: false,
+      isVolumeSliderShowed: false,
+      volume: 100,
     };
 
     this.setSongTime = this.setSongTime.bind(this);
+    this.setPlayerVolume = this.setPlayerVolume.bind(this);
     this.changePlayerSong = this.changePlayerSong.bind(this);
     this.togglePlayPause = this.togglePlayPause.bind(this);
     this.toggleLoop = this.toggleLoop.bind(this);
     this.toggleRandom = this.toggleRandom.bind(this);
     this.renderPlayButton = this.renderPlayButton.bind(this);
     this.renderRandomButton = this.renderRandomButton.bind(this);
+    this.renderVolumeSlider = this.renderVolumeSlider.bind(this);
+    this.renderVolumeButton = this.renderVolumeButton.bind(this);
     this.renderToggleLoop = this.renderToggleLoop.bind(this);
     this.renderDuration = this.renderDuration.bind(this);
     this.renderSlider = this.renderSlider.bind(this);
@@ -59,7 +64,11 @@ class Player extends React.Component {
   }
 
   setPlayerVolume(event) {
-    this.audio.volume = event.target.value;
+    const volume = event.target.value;
+
+    this.setState({ volume }, () => {
+      this.audio.volume = volume / 100;
+    });
   }
 
   changePlayerSong(state) {
@@ -118,6 +127,37 @@ class Player extends React.Component {
     const { isRandomized } = this.state;
 
     this.setState({ isRandomized: !isRandomized });
+  }
+
+  renderVolumeSlider() {
+    const { volume, isVolumeSliderShowed } = this.state;
+
+    if (!isVolumeSliderShowed) return null;
+
+    return (
+      <div className="volume-slider">
+        <input type="range" min="0" max="100" value={volume} onChange={this.setPlayerVolume} />
+        <span>{volume}</span>
+      </div>
+    );
+  }
+
+  renderVolumeButton() {
+    const { volume, isVolumeSliderShowed } = this.state;
+
+    let icon = 'fas fa-volume-off';
+
+    if (volume > 50) icon = 'fas fa-volume-up';
+
+    if (volume < 50 && volume > 0) icon = 'fas fa-volume-down';
+
+    return (
+      <Touchable
+        onPress={() => this.setState({ isVolumeSliderShowed: !isVolumeSliderShowed })}
+        icon={icon}
+        id="button-volume"
+      />
+    );
   }
 
   renderPlayButton() {
@@ -242,6 +282,8 @@ class Player extends React.Component {
           id="button-open-list"
         />
         {this.renderSlider()}
+        {this.renderVolumeSlider()}
+        {this.renderVolumeButton()}
         {this.renderRandomButton()}
         <Touchable
           onPress={() => this.changePlayerSong('previous')}

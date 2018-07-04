@@ -49,7 +49,7 @@
 #button-random, #button-random-colored {
     position: absolute;
     top: 25px;
-    left: 40%;
+    left: 42%;
     margin-left: -50px;
 }
 
@@ -60,7 +60,7 @@
 #button-loop, #button-loop-colored, #button-loop-all {
     position: absolute;
     top: 26px;
-    left: 75%;
+    left: 74%;
     margin-left: -50px;
     font-size: 18px;
 }
@@ -97,6 +97,58 @@
 }
 
 .Player #slider::-webkit-slider-thumb {
+    -webkit-appearance: none; 
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 100px;
+    border: 2px solid #f5f6fa;
+    cursor: pointer;
+    background-color: #353b48;
+}
+
+#button-volume {
+    position: absolute;
+    top: 25px;
+    left: 20%;
+    margin-left: 0px;
+}
+
+.Player .volume-slider {
+    position: absolute;
+    top: -70px;
+    left: 72px;
+    width: 35px;
+    height: 90px;
+    background-color: #353b48;
+    box-shadow: 0px 0.5px 4px black;
+    -webkit-app-region: no-drag;
+    text-align: center;
+    z-index: 1000;
+}
+
+.Player .volume-slider span {
+    font-size: 14px;
+    color: white;
+    position: relative;
+    top: 45px;
+}
+
+.Player .volume-slider input {
+    transform: rotate(-90deg);
+    position: relative;
+    top: 20px;
+    right: 50%;
+    margin-left: 5px;
+    width: 60px;
+    -webkit-appearance: none; 
+    appearance: none;
+    height: 3px;
+    outline: none;
+    -webkit-app-region: no-drag;
+}
+
+.Player .volume-slider input::-webkit-slider-thumb {
     -webkit-appearance: none; 
     appearance: none;
     width: 12px;
