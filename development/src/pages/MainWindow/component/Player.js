@@ -153,9 +153,9 @@ class Player extends React.Component {
 
     return (
       <Touchable
-        onPress={() => this.setState({ isVolumeSliderShowed: !isVolumeSliderShowed })}
+        onClick={() => this.setState({ isVolumeSliderShowed: !isVolumeSliderShowed })}
         icon={icon}
-        id="button-volume"
+        className="button-volume"
       />
     );
   }
@@ -170,9 +170,9 @@ class Player extends React.Component {
 
     return (
       <Touchable
-        onPress={this.togglePlayPause}
+        onClick={this.togglePlayPause}
         icon={icon}
-        id="button-pause-play"
+        className="button-pause-play"
       />
     );
   }
@@ -183,9 +183,9 @@ class Player extends React.Component {
     if (isLoopedAll) {
       return (
         <Touchable
-          onPress={this.toggleLoop}
+          onClick={this.toggleLoop}
           icon="fas fa-circle-notch"
-          id="button-loop-all"
+          className="button-loop-all"
         />
       );
     }
@@ -193,35 +193,35 @@ class Player extends React.Component {
     if (isLooped) {
       return (
         <Touchable
-          onPress={this.toggleLoop}
+          onClick={this.toggleLoop}
           icon="fas fa-redo"
-          id="button-loop-colored"
+          className="button-loop-colored"
         />
       );
     }
 
     return (
       <Touchable
-        onPress={this.toggleLoop}
+        onClick={this.toggleLoop}
         icon="fas fa-redo"
-        id="button-loop"
+        className="button-loop"
       />
     );
   }
 
   renderRandomButton() {
     const { isRandomized } = this.state;
-    let id = 'button-random';
+    let className = 'button-random';
 
     if (isRandomized) {
-      id = 'button-random-colored';
+      className = 'button-random-colored';
     }
 
     return (
       <Touchable
-        onPress={this.toggleRandom}
+        onClick={this.toggleRandom}
         icon="fas fa-random"
-        id={id}
+        className={className}
       />
     );
   }
@@ -272,29 +272,29 @@ class Player extends React.Component {
       <div className="Player">
         <audio ref={node => this.audio = node} src={file} />
         <Touchable
-          onPress={openFile}
+          onClick={openFile}
           icon="fas fa-file-audio"
-          id="button-open"
+          className="button-open"
         />
         <Touchable
-          onPress={() => openWindow('list')}
+          onClick={() => openWindow('list')}
           icon="fas fa-align-justify"
-          id="button-open-list"
+          className="button-open-list"
         />
         {this.renderSlider()}
         {this.renderVolumeSlider()}
         {this.renderVolumeButton()}
         {this.renderRandomButton()}
         <Touchable
-          onPress={() => this.changePlayerSong('previous')}
+          onClick={() => this.changePlayerSong('previous')}
           icon="fas fa-backward"
-          id="button-previous"
+          className="button-previous"
         />
         {this.renderPlayButton()}
         <Touchable
-          onPress={() => this.changePlayerSong('next')}
+          onClick={() => this.changePlayerSong('next')}
           icon="fas fa-forward"
-          id="button-next"
+          className="button-next"
         />
         {this.renderToggleLoop()}
         {this.renderDuration()}

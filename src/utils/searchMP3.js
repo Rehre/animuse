@@ -2,6 +2,8 @@ const fs = require('fs');
 
 function searchMP3(directory, callback) {
   fs.readdir(directory, (err, files) => {
+    if (err) console.log(err);
+
     files.forEach((file) => {
       const stats = fs.statSync(`${directory}\\${file}`);
 

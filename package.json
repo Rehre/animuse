@@ -2,7 +2,7 @@
   "name": "animuse",
   "productName": "Animuse",
   "version": "0.0.1",
-  "description": "Lightweight Music Player",
+  "description": "Music Player",
   "main": "src/MainManager.js",
   "scripts": {
     "start": "set PRODUCTION=true && electron .",

@@ -3,7 +3,7 @@ import React from 'react';
 
 import './styles/MainWindow.css';
 import Player from './component/Player';
-import Statusbar from '../../common/Statusbar';
+import TitleBar from '../../common/TitleBar';
 
 const { ipcRenderer, remote } = window.require('electron');
 
@@ -17,18 +17,28 @@ class MainWindow extends React.Component {
       pictureData: undefined,
     };
 
+    this.title = React.createRef();
+    this.titleAnimation = null;
+
     this.openFile = this.openFile.bind(this);
+    this.animateTitle = this.animateTitle.bind(this);
     this.renderImageThumbnail = this.renderImageThumbnail.bind(this);
   }
 
   componentDidMount() {
     ipcRenderer.on('opened-file', (event, arg) => {
+      const title = arg.tags.title || arg.file.substring(arg.file.length, arg.file.lastIndexOf('\\') + 1);
+
       this.setState({
         file: arg.file,
-        title: arg.file.substring(arg.file.length, arg.file.lastIndexOf('\\') + 1),
+        title,
         pictureData: arg.pictureData,
       });
     });
+  }
+
+  componentDidUpdate() {
+    this.animateTitle();
   }
 
   toggleCloseMinimize(status) {
@@ -51,6 +61,32 @@ class MainWindow extends React.Component {
 
   changeFile(arg) {
     ipcRenderer.send('change-player-song', arg);
+  }
+
+  animateTitle() {
+    const { width } = getComputedStyle(this.title.current);
+    clearInterval(this.titleAnimation);
+
+    const currentElement = this.title.current;
+    if (parseInt(width, 10) < 400) {
+      currentElement.style.left = '10px';
+      return;
+    }
+
+    const toLeft = parseInt(width, 10) - 390;
+    let iterable = 0;
+
+    this.titleAnimation = setInterval(() => {
+      if (Math.abs(iterable) === toLeft) {
+        iterable = 0;
+        currentElement.style.left = 'initial';
+        return;
+      }
+
+      iterable -= 1;
+
+      currentElement.style.left = `${iterable}px`;
+    }, 50);
   }
 
   renderImageThumbnail() {
@@ -76,12 +112,17 @@ class MainWindow extends React.Component {
     return (
       <div className="MainWindow">
         <div className="header">
-          <Statusbar
+          <TitleBar
             onClose={() => this.toggleCloseMinimize('close')}
-            onMinimze={() => this.toggleCloseMinimize('minimize')}
+            onMinimize={() => this.toggleCloseMinimize('minimize')}
           />
           {this.renderImageThumbnail()}
-          <h2 className={(pictureData) ? 'title title--white' : 'title'}>{title || 'no-title'}</h2>
+          <h2
+            ref={this.title}
+            className={(pictureData) ? 'title title--white' : 'title'}
+          >
+            {title || 'no-title'}
+          </h2>
         </div>
         <div className="player-container">
           <Player

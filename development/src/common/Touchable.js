@@ -4,15 +4,14 @@ import PropTypes from 'prop-types';
 import './styles/Touchable.css';
 
 function Touchable({
-  onPress,
+  onClick,
   icon,
-  id,
+  className,
 }) {
   return (
     <div
-      id={id}
-      className="Touchable"
-      onClick={onPress}
+      className={`Touchable ${className}`}
+      onClick={onClick}
     >
       <i className={icon} />
     </div>
@@ -21,13 +20,13 @@ function Touchable({
 
 
 Touchable.propTypes = {
-  onPress: PropTypes.func.isRequired,
-  id: PropTypes.string,
+  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
   icon: PropTypes.string.isRequired,
 };
 
 Touchable.defaultProps = {
-  id: '',
+  className: '',
 };
 
 export default Touchable;

@@ -4,19 +4,19 @@
     text-align: center;
 }
 
-.Player #button-open {
+.Player .button-open {
     position: absolute;
     top: 25px;
     left: 50px;
 }
 
-.Player #button-open-list {
+.Player .button-open-list {
     position: absolute;
     top: 25px;
     left: 15px;
 }
 
-.Player #button-pause-play {
+.Player .button-pause-play {
     position: absolute;
     top: 20px;
     left: 50%;
@@ -26,38 +26,38 @@
     transition: all 0.2;
 }
 
-.Player #button-pause-play:active {
+.Player .button-pause-play:active {
     top: 25px;
     margin-left: -18px;
     font-size: 20px;
 }
 
-#button-previous {
+.button-previous {
     position: absolute;
     top: 25px;
     left: 50%;
     margin-left: -50px;
 }
 
-#button-next {
+.button-next {
     position: absolute;
     top: 25px;
     left: 50%;
     margin-left: 14px;
 }
 
-#button-random, #button-random-colored {
+.button-random, .button-random-colored {
     position: absolute;
     top: 25px;
     left: 42%;
     margin-left: -50px;
 }
 
-#button-random-colored i {
+.button-random-colored i {
     color: rgb(255, 97, 97);
 }
 
-#button-loop, #button-loop-colored, #button-loop-all {
+.button-loop, .button-loop-colored, .button-loop-all {
     position: absolute;
     top: 26px;
     left: 74%;
@@ -65,7 +65,7 @@
     font-size: 18px;
 }
 
-#button-loop-all i, #button-loop-colored i {
+.button-loop-all i, .button-loop-colored i {
     color: rgb(255, 97, 97);
 }
 
@@ -107,7 +107,7 @@
     background-color: #353b48;
 }
 
-#button-volume {
+.button-volume {
     position: absolute;
     top: 25px;
     left: 20%;

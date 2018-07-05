@@ -26,6 +26,11 @@ function openMP3(file, callback) {
       callback(null, {
         file,
         pictureData,
+        tags: {
+          title: tag.tags.title,
+          album: tag.tags.album,
+          artist: tag.tags.artist,
+        },
       });
 
       tag = null;

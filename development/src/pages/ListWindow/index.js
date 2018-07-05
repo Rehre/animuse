@@ -2,7 +2,7 @@
 import React from 'react';
 
 import './styles/ListWindow.css';
-import Statusbar from '../../common/Statusbar';
+import TitleBar from '../../common/TitleBar';
 import Touchable from '../../common/Touchable';
 
 const { ipcRenderer, remote } = window.require('electron');
@@ -289,9 +289,9 @@ class ListWindow extends React.Component {
           onClick={() => this.sendFile(item.id, item.filePath)}
         >
           <Touchable
-            onPress={() => {}}
+            onClick={() => {}}
             icon="fas fa-align-justify"
-            id="button-move-item"
+            className="button-move-item"
           />
           <h4 id="title-song">{title}</h4>
           <span id="album-and-size">{albumAndSize}</span>
@@ -319,9 +319,9 @@ class ListWindow extends React.Component {
     return (
       <div className="ListWindow">
         <div className="header">
-          <Statusbar
+          <TitleBar
             onClose={() => this.toggleCloseMinimize('close')}
-            onMinimze={() => this.toggleCloseMinimize('minimize')}
+            onMinimize={() => this.toggleCloseMinimize('minimize')}
           />
         </div>
         {this.renderHead()}
@@ -330,14 +330,14 @@ class ListWindow extends React.Component {
         </div>
         <div className="footer">
           <Touchable
-            onPress={this.openFolder}
+            onClick={this.openFolder}
             icon="fas fa-folder-open"
-            id="button-folder-open"
+            className="button-folder-open"
           />
           <Touchable
-            onPress={this.clearList}
+            onClick={this.clearList}
             icon="fas fa-ban"
-            id="button-list-clear"
+            className="button-list-clear"
           />
           <div className="list-description">
             <span className="list-description__size">{totalSize.toFixed(2)} MB</span>

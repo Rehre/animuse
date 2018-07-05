@@ -5,7 +5,7 @@ import { HashRouter, Switch, Route } from 'react-router-dom';
 import MainWindow from './pages/MainWindow';
 import ListWindow from './pages/ListWindow';
 
-class App extends React.PureComponent {
+class App extends React.Component {
   render() {
     return (
       <HashRouter>

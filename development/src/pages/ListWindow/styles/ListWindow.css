@@ -95,7 +95,7 @@
     font-size: 13px;
 }
 
-#button-move-item {
+.button-move-item {
     position: absolute;
     top: 50%;
     left: 9px;
@@ -103,7 +103,7 @@
     font-size: 25px;
 }
 
-#button-move-item i {
+.button-move-item i {
     color: #718093;
 }
 
@@ -119,13 +119,13 @@
     z-index: 2;
 }
 
-#button-folder-open {
+.button-folder-open {
     position: absolute;
     bottom: 15px;
     left: 17px;
 }
 
-#button-list-clear {
+.button-list-clear {
     position: absolute;
     bottom: 15px;
     left: 50px;
