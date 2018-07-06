@@ -18,16 +18,18 @@ class MainWindow extends React.Component {
     };
 
     this.title = React.createRef();
+    this.title2 = React.createRef();
     this.titleAnimation = null;
 
     this.openFile = this.openFile.bind(this);
     this.animateTitle = this.animateTitle.bind(this);
+    this.renderTitle = this.renderTitle.bind(this);
     this.renderImageThumbnail = this.renderImageThumbnail.bind(this);
   }
 
   componentDidMount() {
     ipcRenderer.on('opened-file', (event, arg) => {
-      const title = arg.tags.title || arg.file.substring(arg.file.length, arg.file.lastIndexOf('\\') + 1);
+      const title = `${arg.tags.title} - ${arg.tags.artist || 'unknown artist'}` || arg.file.substring(arg.file.length, arg.file.lastIndexOf('\\') + 1);
 
       this.setState({
         file: arg.file,
@@ -64,29 +66,39 @@ class MainWindow extends React.Component {
   }
 
   animateTitle() {
-    const { width } = getComputedStyle(this.title.current);
     clearInterval(this.titleAnimation);
 
+    const { width } = getComputedStyle(this.title.current);
     const currentElement = this.title.current;
+    const title2 = this.title2.current;
+
     if (parseInt(width, 10) < 400) {
       currentElement.style.left = '10px';
+      title2.style.left = '10px';
       return;
     }
 
-    const toLeft = parseInt(width, 10) - 390;
+    title2.style.left = `${parseInt(width, 10) + 50}px`;
+
     let iterable = 0;
+    let iterable2 = parseInt(title2.style.left, 10);
 
     this.titleAnimation = setInterval(() => {
-      if (Math.abs(iterable) === toLeft) {
-        iterable = 0;
+      if (Math.abs(iterable2) === 0) {
         currentElement.style.left = 'initial';
+        title2.style.left = `${parseInt(width, 10) + 50}px`;
+
+        iterable = 0;
+        iterable2 = parseInt(title2.style.left, 10);
         return;
       }
 
       iterable -= 1;
+      iterable2 -= 1;
 
+      title2.style.left = `${iterable2}px`;
       currentElement.style.left = `${iterable}px`;
-    }, 50);
+    }, 60);
   }
 
   renderImageThumbnail() {
@@ -106,8 +118,29 @@ class MainWindow extends React.Component {
     );
   }
 
+  renderTitle() {
+    const { title, pictureData } = this.state;
+
+    return (
+      <div>
+        <h2
+          ref={this.title}
+          className={(pictureData) ? 'title title--white' : 'title'}
+        >
+          {title || 'no-title'}
+        </h2>
+        <h2
+          ref={this.title2}
+          className={(pictureData) ? 'title2 title--white' : 'title2'}
+        >
+          {title || 'no-title'}
+        </h2>
+      </div>
+    );
+  }
+
   render() {
-    const { file, title, pictureData } = this.state;
+    const { file } = this.state;
 
     return (
       <div className="MainWindow">
@@ -117,12 +150,7 @@ class MainWindow extends React.Component {
             onMinimize={() => this.toggleCloseMinimize('minimize')}
           />
           {this.renderImageThumbnail()}
-          <h2
-            ref={this.title}
-            className={(pictureData) ? 'title title--white' : 'title'}
-          >
-            {title || 'no-title'}
-          </h2>
+          {this.renderTitle()}
         </div>
         <div className="player-container">
           <Player

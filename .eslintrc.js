@@ -12,5 +12,6 @@ module.exports = {
         "jsx-a11y/media-has-caption": "off",
         "no-plusplus": "off",
         "no-param-reassign": "off",
+        "arrow-body-style": "off",
     }
 };

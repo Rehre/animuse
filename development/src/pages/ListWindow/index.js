@@ -16,6 +16,7 @@ class ListWindow extends React.Component {
       selectedItem: '',
       totalTime: 0,
       totalSize: 0,
+      searchTerm: '',
     };
 
     this.renderList = this.renderList.bind(this);
@@ -30,6 +31,7 @@ class ListWindow extends React.Component {
     this.runStorageChecker = this.runStorageChecker.bind(this);
     this.runTagUpdater = this.runTagUpdater.bind(this);
     this.renderTotalTime = this.renderTotalTime.bind(this);
+    this.renderSearchBar = this.renderSearchBar.bind(this);
   }
 
   componentDidMount() {
@@ -239,13 +241,21 @@ class ListWindow extends React.Component {
   }
 
   renderList() {
-    const { audiolist, selectedItem } = this.state;
+    const { audiolist, selectedItem, searchTerm } = this.state;
 
     if (audiolist.length <= 0) {
       return <i id="list-ui-null" className="fas fa-list-ul" />;
     }
 
-    return audiolist.map((item) => {
+    let filteredAudioList = audiolist;
+
+    if (searchTerm.length > 0) {
+      filteredAudioList = audiolist.filter((item) => {
+        return item.title.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+    }
+
+    return filteredAudioList.map((item) => {
       const className = (selectedItem === item.id) ? 'music-list music-list-selected' : 'music-list';
 
       let titleHeader = item.title.substring(0, item.title.indexOf('.mp3'));
@@ -301,6 +311,24 @@ class ListWindow extends React.Component {
     });
   }
 
+  renderSearchBar() {
+    return (
+      <div className="search-bar">
+        <Touchable
+          onClick={() => {}}
+          icon="fas fa-times-circle"
+          className="search-bar__close-input"
+        />
+        <input
+          className="search-bar__input"
+          type="text"
+          onChange={event => this.setState({ searchTerm: event.target.value })}
+          placeholder="Put the song title..."
+        />
+      </div>
+    );
+  }
+
   renderHead() {
     const { audiolist, selectedItem } = this.state;
 
@@ -309,6 +337,7 @@ class ListWindow extends React.Component {
     return (
       <div className="head">
         <span>{selectedIndex + 1} / {audiolist.length}</span>
+        {this.renderSearchBar()}
       </div>
     );
   }

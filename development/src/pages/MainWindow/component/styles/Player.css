@@ -57,6 +57,10 @@
     color: rgb(255, 97, 97);
 }
 
+.button-random-colored i:hover {
+    color: rgb(255, 97, 97)!important;
+}
+
 .button-loop, .button-loop-colored, .button-loop-all {
     position: absolute;
     top: 26px;
@@ -67,6 +71,10 @@
 
 .button-loop-all i, .button-loop-colored i {
     color: rgb(255, 97, 97);
+}
+
+.button-loop-colored i:hover, .button-loop-all:hover i:hover{
+    color: rgb(255, 97, 97)!important;
 }
 
 .Player #duration {

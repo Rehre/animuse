@@ -25,9 +25,47 @@
     color: black;
     position: absolute;
     top: 50%;
-    left: 50%;
+    left: 10%;
     margin-top: -10px;
     margin-left: -20px;
+}
+
+.ListWindow .head .search-bar {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    margin-top: -15px;
+}
+
+.search-bar__close-input {
+    position: absolute;
+    margin-top: -12px;
+    left: -25px;
+    top: 50%;
+    display: inline-block;
+}
+
+.search-bar__close-input i {
+    color: #718093;
+}
+
+.search-bar__close-input i:hover {
+    color: #353b48;
+}
+
+.search-bar__input {
+    border: none;
+    background-color: transparent;
+    padding: 5px;
+    width: 150px;
+    border-bottom: 1px solid silver;
+    outline: none;
+    animation: animateInput 0.7s;
+}
+
+@keyframes animateInput {
+  0% {width: 0px;}
+  100% {width: 150px;}
 }
 
 .ListWindow .content {
@@ -54,7 +92,7 @@
    height: 20px;
    padding: 15px;
    background-color: white;
-   border-bottom: 1px solid #718093;
+   border-bottom: 1px solid silver;
    position: relative;
    user-select: none;
 }
@@ -73,6 +111,7 @@
 }
 
 #title-song {
+    font-family: 'OpenSans-SemiBold';
     position: absolute;
     left: 38px;
     top: 8px;

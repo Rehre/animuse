@@ -149,7 +149,7 @@ class Player extends React.Component {
 
     if (volume > 50) icon = 'fas fa-volume-up';
 
-    if (volume < 50 && volume > 0) icon = 'fas fa-volume-down';
+    if (volume <= 50 && volume > 0) icon = 'fas fa-volume-down';
 
     return (
       <Touchable

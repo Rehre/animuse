@@ -8,6 +8,12 @@
     src: url('./../fonts/OpenSans/OpenSans-LightItalic.ttf');
 }
 
+@font-face{
+    font-family: 'OpenSans-SemiBold';
+    src: url('./../fonts/OpenSans/OpenSans-SemiBold.ttf');
+}
+
+
 * {
     margin: 0px;
     padding: 0px;
