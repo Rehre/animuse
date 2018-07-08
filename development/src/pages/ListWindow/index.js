@@ -5,6 +5,8 @@ import './styles/ListWindow.css';
 import TitleBar from '../../common/TitleBar';
 import Touchable from '../../common/Touchable';
 
+import List from './components/List';
+
 const { ipcRenderer, remote } = window.require('electron');
 
 class ListWindow extends React.Component {
@@ -17,21 +19,21 @@ class ListWindow extends React.Component {
       totalTime: 0,
       totalSize: 0,
       searchTerm: '',
+      isSearchBarShow: false,
     };
 
-    this.renderList = this.renderList.bind(this);
-    this.listenToFile = this.listenToFile.bind(this);
-    this.sendFile = this.sendFile.bind(this);
-    this.changeSong = this.changeSong.bind(this);
-    this.clearList = this.clearList.bind(this);
-    this.moveItem = this.moveItem.bind(this);
-    this.renderHead = this.renderHead.bind(this);
-    this.updateTags = this.updateTags.bind(this);
-    this.updateDuration = this.updateDuration.bind(this);
     this.runStorageChecker = this.runStorageChecker.bind(this);
     this.runTagUpdater = this.runTagUpdater.bind(this);
+    this.clearList = this.clearList.bind(this);
+    this.listenToFile = this.listenToFile.bind(this);
+    this.updateTags = this.updateTags.bind(this);
+    this.updateDuration = this.updateDuration.bind(this);
+    this.changeSong = this.changeSong.bind(this);
+    this.sendFile = this.sendFile.bind(this);
     this.renderTotalTime = this.renderTotalTime.bind(this);
     this.renderSearchBar = this.renderSearchBar.bind(this);
+    this.renderHead = this.renderHead.bind(this);
+    this.renderList = this.renderList.bind(this);
   }
 
   componentDidMount() {
@@ -58,6 +60,16 @@ class ListWindow extends React.Component {
     });
   }
 
+  toggleCloseMinimize(status) {
+    if (status === 'close') {
+      remote.getCurrentWindow().close();
+    }
+
+    if (status === 'minimize') {
+      remote.getCurrentWindow().minimize();
+    }
+  }
+
   runStorageChecker() {
     const audiolist = JSON.parse(localStorage.getItem('music-list')) || [];
     const totalSize = JSON.parse(localStorage.getItem('music-total-size')) || 0;
@@ -77,18 +89,23 @@ class ListWindow extends React.Component {
     });
   }
 
-  toggleCloseMinimize(status) {
-    if (status === 'close') {
-      remote.getCurrentWindow().close();
-    }
-
-    if (status === 'minimize') {
-      remote.getCurrentWindow().minimize();
-    }
-  }
-
   openFolder() {
     ipcRenderer.send('open-folder');
+  }
+
+  clearList() {
+    localStorage.removeItem('music-list');
+    localStorage.removeItem('music-total-size');
+    localStorage.removeItem('music-total-time');
+    // cancel all the asynchronous function in ipcManager
+    ipcRenderer.send('cancel-all-async-function');
+
+    this.setState({
+      audiolist: [],
+      selectedItem: '',
+      totalTime: 0,
+      totalSize: 0,
+    });
   }
 
   // this will automatically send the get-song-tags event to ipcManager
@@ -188,37 +205,11 @@ class ListWindow extends React.Component {
     }
   }
 
-  moveItem(id, idMoveTo) {
-    const { audioList } = this.state;
-    const newList = [...audioList];
-
-    const itemIndex = newList.findIndex(item => item.id === id);
-    const itemToIndex = newList.findIndex(item => item.id === idMoveTo);
-
-    newList.splice(itemToIndex - 1, 0, newList[itemIndex]);
-    newList.splice(itemIndex, 1);
-  }
-
   // send file to mainWindow
   sendFile(id, filepath) {
     this.setState({ selectedItem: id });
 
     ipcRenderer.send('send-file', filepath);
-  }
-
-  clearList() {
-    localStorage.removeItem('music-list');
-    localStorage.removeItem('music-total-size');
-    localStorage.removeItem('music-total-time');
-    // cancel all the asynchronous function in ipcManager
-    ipcRenderer.send('cancel-all-async-function');
-
-    this.setState({
-      audiolist: [],
-      selectedItem: '',
-      totalTime: 0,
-      totalSize: 0,
-    });
   }
 
   renderTotalTime() {
@@ -240,6 +231,51 @@ class ListWindow extends React.Component {
     );
   }
 
+  renderSearchBar() {
+    const { isSearchBarShow } = this.state;
+
+    if (isSearchBarShow) {
+      return (
+        <div className="search-bar">
+          <Touchable
+            onClick={() => this.setState({ isSearchBarShow: false, searchTerm: '' })}
+            icon="fas fa-times-circle"
+            className="search-bar__close-input"
+          />
+          <input
+            className="search-bar__input"
+            type="text"
+            onChange={event => this.setState({ searchTerm: event.target.value })}
+            placeholder="Put the song title..."
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="search-bar">
+        <Touchable
+          onClick={() => this.setState({ isSearchBarShow: true })}
+          icon="fas fa-search"
+          className="search-bar__open-input"
+        />
+      </div>
+    );
+  }
+
+  renderHead() {
+    const { audiolist, selectedItem } = this.state;
+
+    const selectedIndex = audiolist.findIndex(item => item.id === selectedItem);
+
+    return (
+      <div className="head">
+        <span># {selectedIndex + 1} / {audiolist.length}</span>
+        {this.renderSearchBar()}
+      </div>
+    );
+  }
+
   renderList() {
     const { audiolist, selectedItem, searchTerm } = this.state;
 
@@ -256,7 +292,7 @@ class ListWindow extends React.Component {
     }
 
     return filteredAudioList.map((item) => {
-      const className = (selectedItem === item.id) ? 'music-list music-list-selected' : 'music-list';
+      const className = (selectedItem === item.id) ? 'music-list music-list-selected' : '';
 
       let titleHeader = item.title.substring(0, item.title.indexOf('.mp3'));
       let artistHeader = 'unknown artist';
@@ -293,53 +329,16 @@ class ListWindow extends React.Component {
       albumAndSize = (albumAndSize.length > 30) ? `${albumAndSize.substring(0, 30)}...` : albumAndSize;
 
       return (
-        <div
-          className={className}
-          key={item.id}
+        <List
+          id={item.id}
           onClick={() => this.sendFile(item.id, item.filePath)}
-        >
-          <Touchable
-            onClick={() => {}}
-            icon="fas fa-align-justify"
-            className="button-move-item"
-          />
-          <h4 id="title-song">{title}</h4>
-          <span id="album-and-size">{albumAndSize}</span>
-          <span id="duration">{duration}</span>
-        </div>
+          className={className}
+          title={title}
+          albumAndSize={albumAndSize}
+          duration={duration}
+        />
       );
     });
-  }
-
-  renderSearchBar() {
-    return (
-      <div className="search-bar">
-        <Touchable
-          onClick={() => {}}
-          icon="fas fa-times-circle"
-          className="search-bar__close-input"
-        />
-        <input
-          className="search-bar__input"
-          type="text"
-          onChange={event => this.setState({ searchTerm: event.target.value })}
-          placeholder="Put the song title..."
-        />
-      </div>
-    );
-  }
-
-  renderHead() {
-    const { audiolist, selectedItem } = this.state;
-
-    const selectedIndex = audiolist.findIndex(item => item.id === selectedItem);
-
-    return (
-      <div className="head">
-        <span>{selectedIndex + 1} / {audiolist.length}</span>
-        {this.renderSearchBar()}
-      </div>
-    );
   }
 
   render() {

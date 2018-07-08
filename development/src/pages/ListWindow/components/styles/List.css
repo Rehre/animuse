@@ -1,0 +1,65 @@
+.music-list {
+color: #353b48;
+height: 20px;
+padding: 15px;
+background-color: white;
+border-bottom: 1px solid silver;
+position: relative;
+}
+
+.music-list-selected {
+    background-color: #2f3640;
+    border-bottom: 1px solid #2f3640;
+    color: white;
+}
+
+.music-list:hover {
+    background-color: #2f3640;
+    cursor: pointer;
+    color: white;
+    border-bottom: 1px solid #2f3640;
+}
+
+#title-song {
+    font-family: 'OpenSans-SemiBold';
+    position: absolute;
+    left: 38px;
+    top: 8px;
+    font-size: 13px;
+    font-weight: 100;
+}
+
+#album-and-size {
+    position: absolute;
+    left: 38px;
+    top: 24px;
+    font-size: 12px;
+    font-weight: 100;
+}
+
+#duration {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    font-size: 13px;
+}
+
+.button-move-item {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    margin-top: -18px;
+    font-size: 25px;
+}
+
+.button-move-item i {
+    color: #718093;
+}
+
+.music-list-selected .button-move-item i, .music-list:hover .button-move-item i {
+    color: white;
+}
+
+.music-list-selected .button-move-item i:hover, .music-list:hover .button-move-item i:hover {
+    color: #718093;
+}

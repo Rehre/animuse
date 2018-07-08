@@ -2,6 +2,7 @@
     position: relative;
     height: 600px;
     overflow: hidden;
+    user-select: none;
 }
 
 .ListWindow .header {
@@ -45,11 +46,19 @@
     display: inline-block;
 }
 
-.search-bar__close-input i {
+.search-bar__open-input {
+    position: absolute;
+    left: -15px;
+    top: 50%;
+    margin-top: 2px;
+    display: inline-block;
+}
+
+.search-bar__close-input i, .search-bar__open-input i {
     color: #718093;
 }
 
-.search-bar__close-input i:hover {
+.search-bar__close-input i:hover, .search-bar__open-input i:hover {
     color: #353b48;
 }
 
@@ -60,7 +69,7 @@
     width: 150px;
     border-bottom: 1px solid silver;
     outline: none;
-    animation: animateInput 0.7s;
+    animation: animateInput 0.3s;
 }
 
 @keyframes animateInput {
@@ -85,69 +94,6 @@
     left: 50%;
     margin-top: -20px;
     margin-left: -20px;
-}
-
-.ListWindow .music-list {
-   color: #353b48;
-   height: 20px;
-   padding: 15px;
-   background-color: white;
-   border-bottom: 1px solid silver;
-   position: relative;
-   user-select: none;
-}
-
-.ListWindow .music-list-selected {
-    background-color: #2f3640;
-    border-bottom: 1px solid #2f3640;
-    color: white;
-}
-
-.ListWindow .music-list:hover {
-    background-color: #2f3640;
-    cursor: pointer;
-    color: white;
-    border-bottom: 1px solid #2f3640;
-}
-
-#title-song {
-    font-family: 'OpenSans-SemiBold';
-    position: absolute;
-    left: 38px;
-    top: 8px;
-    font-size: 13px;
-    font-weight: 100;
-}
-
-#album-and-size {
-    position: absolute;
-    left: 38px;
-    top: 24px;
-    font-size: 12px;
-    font-weight: 100;
-}
-
-#duration {
-    position: absolute;
-    right: 10px;
-    top: 8px;
-    font-size: 13px;
-}
-
-.button-move-item {
-    position: absolute;
-    top: 50%;
-    left: 9px;
-    margin-top: -18px;
-    font-size: 25px;
-}
-
-.button-move-item i {
-    color: #718093;
-}
-
-.ListWindow .music-list-selected #button-move-item i, .ListWindow .music-list:hover #button-move-item i {
-    color: white;
 }
 
 .ListWindow .footer {
