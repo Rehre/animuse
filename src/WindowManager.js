@@ -1,11 +1,12 @@
 const { app, BrowserWindow } = require('electron');
+const isDev = require('electron-is-dev');
 
 class WindowManager {
   constructor() {
     this.mainWindow = '';
     this.listWindow = '';
-    this.urlMain = (process.env.PRODUCTION) ? `file://${__dirname}/../production/index.html` : 'http://localhost:3000';
-    this.urlList = (process.env.PRODUCTION) ? `file://${__dirname}/../production/index.html#/list` : 'http://localhost:3000#/list';
+    this.urlMain = (!isDev) ? `file://${__dirname}/../production/index.html` : 'http://localhost:3000';
+    this.urlList = (!isDev) ? `file://${__dirname}/../production/index.html#/list` : 'http://localhost:3000#/list';
 
     this.initiateWindow = this.initiateWindow.bind(this);
   }
@@ -61,7 +62,7 @@ class WindowManager {
       this.listWindow.focus();
     });
     // run the developer tools if in development mode
-    if (!process.env.PRODUCTION) {
+    if (isDev) {
       this.mainWindow.webContents.openDevTools();
       this.listWindow.webContents.openDevTools();
     }

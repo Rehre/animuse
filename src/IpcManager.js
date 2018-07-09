@@ -16,7 +16,28 @@ let tagRunDuration = 0;
 let timeRunDuration = 0;
 
 let waitedAsyncFunction = []; // save all the async function in here
+// when file is opened using app
+ipcMain.on('get-opening-file', (event) => {
+  const data = process.argv[1] || undefined;
 
+  if (!data) return;
+
+  openMP3(data, (err, fileObject) => {
+    if (err) console.log(err);
+
+    const songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
+
+    event.sender.send('opened-file', fileObject);
+
+    const playNotification = new Notification({
+      title: 'Playing',
+      body: songTitle,
+      // icon: nativeImage.createFromDataURL(fileObject.pictureData),
+    });
+
+    playNotification.show();
+  });
+});
 // when the close event is called from the mainWindow then quit the app
 ipcMain.on('close-app', () => {
   app.quit();
@@ -36,7 +57,7 @@ ipcMain.on('open-file', (event) => {
   openMP3(file[0], (err, fileObject) => {
     if (err) event.sender.send('error-opening-mp3', err);
 
-    const songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\'));
+    const songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
 
     event.sender.send('opened-file', fileObject);
 
@@ -76,7 +97,7 @@ ipcMain.on('open-window', (event, arg) => {
 ipcMain.on('send-file', (event, arg) => {
   openMP3(arg, (err, fileObject) => {
     if (err) WindowManager.mainWindow.webContents.send('send-failed-error', err);
-    const songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\'));
+    const songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
 
     WindowManager.mainWindow.webContents.send('opened-file', fileObject);
 

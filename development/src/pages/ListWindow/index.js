@@ -246,7 +246,8 @@ class ListWindow extends React.Component {
             className="search-bar__input"
             type="text"
             onChange={event => this.setState({ searchTerm: event.target.value })}
-            placeholder="Put the song title..."
+            placeholder="Type the song title..."
+            autoFocus
           />
         </div>
       );
@@ -331,6 +332,7 @@ class ListWindow extends React.Component {
       return (
         <List
           id={item.id}
+          key={item.id}
           onClick={() => this.sendFile(item.id, item.filePath)}
           className={className}
           title={title}

@@ -1,16 +1,27 @@
 {
   "name": "animuse",
   "productName": "Animuse",
+  "build": {
+    "appId": "com.akmal.animuse",
+    "win": {
+      "target": "nsis"
+    }
+  },
+  "fileAssociations": [
+    {
+      "ext": [".mp3"],
+      "description": "Music file extension"
+    }
+  ],
   "version": "0.0.1",
   "description": "Music Player",
   "main": "src/MainManager.js",
   "scripts": {
-    "start": "set PRODUCTION=true && electron .",
+    "start": "set NODE_ENV=production && electron .",
     "dev": "electron .",
-    "build": "webpack",
+    "build:react": "webpack",
     "dev:server": "webpack-dev-server --config webpack.dev.config.js",
-    "packager":  "electron-packager ./ Animuse --ignore=development --platform=win32 --arc=x86",
-    "build": "set PRODUCTION=true && packager"
+    "dist": "set NODE_ENV=production && electron-builder"
   },
   "keywords": [
     "Music",
@@ -28,6 +39,7 @@
     "babel-preset-stage-1": "^6.24.1",
     "css-loader": "^0.28.11",
     "electron": "^2.0.3",
+    "electron-builder": "^20.19.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^17.0.0",
     "eslint-plugin-import": "^2.12.0",
@@ -46,7 +58,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.1.0",
     "btoa": "^1.2.1",
-    "electron-packager": "^12.1.0",
+    "electron-is-dev": "^0.3.0",
     "jsmediatags": "^3.8.1",
     "mp3-duration": "^1.1.0",
     "react": "^16.4.1",

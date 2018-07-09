@@ -28,6 +28,8 @@ class MainWindow extends React.Component {
   }
 
   componentDidMount() {
+    ipcRenderer.send('get-opening-file');
+
     ipcRenderer.on('opened-file', (event, arg) => {
       const title = `${arg.tags.title} - ${arg.tags.artist || 'unknown artist'}` || arg.file.substring(arg.file.length, arg.file.lastIndexOf('\\') + 1);
 

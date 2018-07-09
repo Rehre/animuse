@@ -16,7 +16,7 @@
     text-align: center;
 }
 
-.MainWindow .header .title {
+.MainWindow .header .title, .MainWindow .header .title2 {
     position: absolute;
     bottom: 10px;
     left: 10px;
@@ -27,8 +27,9 @@
     z-index: 1;
 }
 
-.MainWindow .header .title--white {
+.MainWindow .header .title--white, .MainWindow .header .title2--white {
   color: white;
+  text-shadow: 0.5px 0.5px 5px #353b48;
 }
 
 .MainWindow .header #play-icon {
@@ -61,19 +62,19 @@
     text-align: center;
 }
 
-.Player #button-open {
+.Player .button-open {
     position: absolute;
     top: 25px;
     left: 50px;
 }
 
-.Player #button-open-list {
+.Player .button-open-list {
     position: absolute;
     top: 25px;
     left: 15px;
 }
 
-.Player #button-pause-play {
+.Player .button-pause-play {
     position: absolute;
     top: 20px;
     left: 50%;
@@ -83,24 +84,55 @@
     transition: all 0.2;
 }
 
-.Player #button-pause-play:active {
+.Player .button-pause-play:active {
     top: 25px;
     margin-left: -18px;
     font-size: 20px;
 }
 
-#button-previous {
+.button-previous {
     position: absolute;
     top: 25px;
     left: 50%;
     margin-left: -50px;
 }
 
-#button-next {
+.button-next {
     position: absolute;
     top: 25px;
     left: 50%;
     margin-left: 14px;
+}
+
+.button-random, .button-random-colored {
+    position: absolute;
+    top: 25px;
+    left: 42%;
+    margin-left: -50px;
+}
+
+.button-random-colored i {
+    color: rgb(255, 97, 97);
+}
+
+.button-random-colored i:hover {
+    color: rgb(255, 97, 97)!important;
+}
+
+.button-loop, .button-loop-colored, .button-loop-all {
+    position: absolute;
+    top: 26px;
+    left: 74%;
+    margin-left: -50px;
+    font-size: 18px;
+}
+
+.button-loop-all i, .button-loop-colored i {
+    color: rgb(255, 97, 97);
+}
+
+.button-loop-colored i:hover, .button-loop-all:hover i:hover{
+    color: rgb(255, 97, 97)!important;
 }
 
 .Player #duration {
@@ -123,6 +155,7 @@
     border-radius: 10px;
     background: #f5f6fa;
     outline: none;
+    
 }
 
 .Player #slider:hover {
@@ -130,6 +163,58 @@
 }
 
 .Player #slider::-webkit-slider-thumb {
+    -webkit-appearance: none; 
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 100px;
+    border: 2px solid #f5f6fa;
+    cursor: pointer;
+    background-color: #353b48;
+}
+
+.button-volume {
+    position: absolute;
+    top: 25px;
+    left: 20%;
+    margin-left: 0px;
+}
+
+.Player .volume-slider {
+    position: absolute;
+    top: -70px;
+    left: 72px;
+    width: 35px;
+    height: 90px;
+    background-color: #353b48;
+    box-shadow: 0px 0.5px 4px black;
+    -webkit-app-region: no-drag;
+    text-align: center;
+    z-index: 1000;
+}
+
+.Player .volume-slider span {
+    font-size: 14px;
+    color: white;
+    position: relative;
+    top: 45px;
+}
+
+.Player .volume-slider input {
+    transform: rotate(-90deg);
+    position: relative;
+    top: 20px;
+    right: 50%;
+    margin-left: 5px;
+    width: 60px;
+    -webkit-appearance: none; 
+    appearance: none;
+    height: 3px;
+    outline: none;
+    -webkit-app-region: no-drag;
+}
+
+.Player .volume-slider input::-webkit-slider-thumb {
     -webkit-appearance: none; 
     appearance: none;
     width: 12px;
@@ -150,13 +235,13 @@
 .Touchable i:hover {
     color: #dcdde1;
 }
-.status-bar {
+.title-bar {
     position: absolute;
     top: 2px;
     right: 4px;
 }
 
-.status-bar .button-status {
+.title-bar__button {
     margin: 3px;
     width: 10px;
     height: 10px;
@@ -166,29 +251,30 @@
     display: inline-block;
 }
 
-.status-bar .button-status:hover {
+.title-bar__button:hover {
     cursor: pointer;
 }
 
-#close-button {
+.title-bar__button--red {
     background-color: #e74c3c;
 }
 
-#close-button:hover {
+.title-bar__button--red:hover {
     background-color: #c0392b;
 }
 
-#minimize-button {
+.title-bar__button--yellow {
     background-color: #f1c40f;
 }
 
-#minimize-button:hover {
+.title-bar__button--yellow:hover {
     background-color: #f39c12;
 }
 .ListWindow {
     position: relative;
     height: 600px;
     overflow: hidden;
+    user-select: none;
 }
 
 .ListWindow .header {
@@ -212,9 +298,55 @@
     color: black;
     position: absolute;
     top: 50%;
-    left: 50%;
+    left: 10%;
     margin-top: -10px;
     margin-left: -20px;
+}
+
+.ListWindow .head .search-bar {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    margin-top: -15px;
+}
+
+.search-bar__close-input {
+    position: absolute;
+    margin-top: -12px;
+    left: -25px;
+    top: 50%;
+    display: inline-block;
+}
+
+.search-bar__open-input {
+    position: absolute;
+    left: -15px;
+    top: 50%;
+    margin-top: 2px;
+    display: inline-block;
+}
+
+.search-bar__close-input i, .search-bar__open-input i {
+    color: #718093;
+}
+
+.search-bar__close-input i:hover, .search-bar__open-input i:hover {
+    color: #353b48;
+}
+
+.search-bar__input {
+    border: none;
+    background-color: transparent;
+    padding: 5px;
+    width: 150px;
+    border-bottom: 1px solid silver;
+    outline: none;
+    animation: animateInput 0.3s;
+}
+
+@keyframes animateInput {
+  0% {width: 0px;}
+  100% {width: 150px;}
 }
 
 .ListWindow .content {
@@ -236,23 +368,50 @@
     margin-left: -20px;
 }
 
-.ListWindow .music-list {
-   color: #353b48;
-   height: 20px;
-   padding: 15px;
-   background-color: white;
-   border-bottom: 1px solid #718093;
-   position: relative;
-   user-select: none;
+.ListWindow .footer {
+    background-color: #353b48;
+    width: 100%;
+    height: 10%;
+    box-shadow: 0px 0px 2px black;
+    z-index: 2;
 }
 
-.ListWindow .music-list-selected {
+.button-folder-open {
+    position: absolute;
+    bottom: 15px;
+    left: 17px;
+}
+
+.button-list-clear {
+    position: absolute;
+    bottom: 15px;
+    left: 50px;
+}
+
+.list-description {
+    position: absolute;
+    color: white;
+    font-size: 14px;
+    bottom: 20px;
+    right: 17px;
+}
+
+.music-list {
+color: #353b48;
+height: 20px;
+padding: 15px;
+background-color: white;
+border-bottom: 1px solid silver;
+position: relative;
+}
+
+.music-list-selected {
     background-color: #2f3640;
     border-bottom: 1px solid #2f3640;
     color: white;
 }
 
-.ListWindow .music-list:hover {
+.music-list:hover {
     background-color: #2f3640;
     cursor: pointer;
     color: white;
@@ -260,6 +419,7 @@
 }
 
 #title-song {
+    font-family: 'OpenSans-SemiBold';
     position: absolute;
     left: 38px;
     top: 8px;
@@ -282,42 +442,25 @@
     font-size: 13px;
 }
 
-#button-move-item {
+.button-move-item {
     position: absolute;
     top: 50%;
-    left: 9px;
+    left: 15px;
     margin-top: -18px;
     font-size: 25px;
 }
 
-#button-move-item i {
+.button-move-item i {
     color: #718093;
 }
 
-.ListWindow .music-list-selected #button-move-item i, .ListWindow .music-list:hover #button-move-item i {
+.music-list-selected .button-move-item i, .music-list:hover .button-move-item i {
     color: white;
 }
 
-.ListWindow .footer {
-    background-color: #353b48;
-    width: 100%;
-    height: 10%;
-    box-shadow: 0px 0px 2px black;
-    z-index: 2;
+.music-list-selected .button-move-item i:hover, .music-list:hover .button-move-item i:hover {
+    color: #718093;
 }
-
-#button-folder-open {
-    position: absolute;
-    bottom: 15px;
-    left: 17px;
-}
-
-#button-list-clear {
-    position: absolute;
-    bottom: 15px;
-    left: 50px;
-}
-
 @font-face{
     font-family: 'OpenSans-Light';
     src: url(../fonts/OpenSans-Light.ttf);
@@ -327,6 +470,12 @@
     font-family: 'OpenSans-LightItalic';
     src: url(../fonts/OpenSans-LightItalic.ttf);
 }
+
+@font-face{
+    font-family: 'OpenSans-SemiBold';
+    src: url(../fonts/OpenSans-SemiBold.ttf);
+}
+
 
 * {
     margin: 0px;

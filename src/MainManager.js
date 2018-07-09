@@ -3,6 +3,7 @@ const { app } = require('electron');
 const WindowManager = require('./WindowManager');
 require('./IpcManager');
 
+app.setAppUserModelId('com.akmal.animuse');
 app.on('ready', WindowManager.initiateWindow);
 
 app.on('window-all-closed', () => {

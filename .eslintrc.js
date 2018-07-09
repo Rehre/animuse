@@ -13,5 +13,6 @@ module.exports = {
         "no-plusplus": "off",
         "no-param-reassign": "off",
         "arrow-body-style": "off",
+        "jsx-a11y/no-autofocus": "off",
     }
 };
