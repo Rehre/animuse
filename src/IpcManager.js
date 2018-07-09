@@ -2,7 +2,6 @@ const {
   app,
   ipcMain,
   dialog,
-  Notification,
   // nativeImage,
 } = require('electron');
 const mp3Duration = require('mp3-duration');
@@ -10,6 +9,7 @@ const mp3Duration = require('mp3-duration');
 const openMP3 = require('./utils/openMP3');
 const searchMP3 = require('./utils/searchMP3');
 const getMediaTags = require('./utils/getMediaTags');
+const openNotification = require('./utils/openNotification');
 const WindowManager = require('./WindowManager');
 // duration for asyncFunction to run
 let tagRunDuration = 0;
@@ -25,17 +25,17 @@ ipcMain.on('get-opening-file', (event) => {
   openMP3(data, (err, fileObject) => {
     if (err) console.log(err);
 
-    const songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
+    let songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
+
+    if (fileObject.tags) {
+      if (fileObject.tags.title && fileObject.tags.title.length > 0) {
+        songTitle = fileObject.tags.title;
+      }
+    }
 
     event.sender.send('opened-file', fileObject);
 
-    const playNotification = new Notification({
-      title: 'Playing',
-      body: songTitle,
-      // icon: nativeImage.createFromDataURL(fileObject.pictureData),
-    });
-
-    playNotification.show();
+    openNotification('Playing', songTitle);
   });
 });
 // when the close event is called from the mainWindow then quit the app
@@ -57,17 +57,17 @@ ipcMain.on('open-file', (event) => {
   openMP3(file[0], (err, fileObject) => {
     if (err) event.sender.send('error-opening-mp3', err);
 
-    const songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
+    let songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
+
+    if (fileObject.tags) {
+      if (fileObject.tags.title && fileObject.tags.title.length > 0) {
+        songTitle = fileObject.tags.title;
+      }
+    }
 
     event.sender.send('opened-file', fileObject);
 
-    const playNotification = new Notification({
-      title: 'Playing',
-      body: songTitle,
-      // icon: nativeImage.createFromDataURL(fileObject.pictureData),
-    });
-
-    playNotification.show();
+    openNotification('Playing', songTitle);
   });
 });
 // use this to open a folder in the listWindow
@@ -97,17 +97,17 @@ ipcMain.on('open-window', (event, arg) => {
 ipcMain.on('send-file', (event, arg) => {
   openMP3(arg, (err, fileObject) => {
     if (err) WindowManager.mainWindow.webContents.send('send-failed-error', err);
-    const songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
+    let songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
+
+    if (fileObject.tags) {
+      if (fileObject.tags.title && fileObject.tags.title.length > 0) {
+        songTitle = fileObject.tags.title;
+      }
+    }
 
     WindowManager.mainWindow.webContents.send('opened-file', fileObject);
 
-    const playNotification = new Notification({
-      title: 'Playing',
-      body: songTitle,
-      // icon: nativeImage.createFromDataURL(fileObject.pictureData),
-    });
-
-    playNotification.show();
+    openNotification('Playing', fileObject.tags.title || songTitle);
   });
 });
 // use this to send the change event(next or previous or random or loop-all-next) to list window

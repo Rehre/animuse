@@ -207,6 +207,10 @@ class ListWindow extends React.Component {
 
   // send file to mainWindow
   sendFile(id, filepath) {
+    const { selectedItem } = this.state;
+
+    if (selectedItem === id) return;
+
     this.setState({ selectedItem: id });
 
     ipcRenderer.send('send-file', filepath);

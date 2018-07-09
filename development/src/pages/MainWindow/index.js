@@ -31,7 +31,13 @@ class MainWindow extends React.Component {
     ipcRenderer.send('get-opening-file');
 
     ipcRenderer.on('opened-file', (event, arg) => {
-      const title = `${arg.tags.title} - ${arg.tags.artist || 'unknown artist'}` || arg.file.substring(arg.file.length, arg.file.lastIndexOf('\\') + 1);
+      let title = arg.file.substring(arg.file.length, arg.file.lastIndexOf('\\') + 1);
+
+      if (arg.tags) {
+        if (arg.tags.title && arg.tags.title.length > 0) {
+          title = `${arg.tags.title} - ${arg.tags.artist || 'unknown artist'}`;
+        }
+      }
 
       this.setState({
         file: arg.file,
@@ -65,6 +71,7 @@ class MainWindow extends React.Component {
 
   changeFile(arg) {
     ipcRenderer.send('change-player-song', arg);
+    ipcRenderer.send('song-ended');
   }
 
   animateTitle() {
@@ -121,7 +128,7 @@ class MainWindow extends React.Component {
   }
 
   renderTitle() {
-    const { title, pictureData } = this.state;
+    const { pictureData, title } = this.state;
 
     return (
       <div>
@@ -129,13 +136,13 @@ class MainWindow extends React.Component {
           ref={this.title}
           className={(pictureData) ? 'title title--white' : 'title'}
         >
-          {title || 'no-title'}
+          {title}
         </h2>
         <h2
           ref={this.title2}
           className={(pictureData) ? 'title2 title--white' : 'title2'}
         >
-          {title || 'no-title'}
+          {title}
         </h2>
       </div>
     );

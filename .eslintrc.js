@@ -14,5 +14,6 @@ module.exports = {
         "no-param-reassign": "off",
         "arrow-body-style": "off",
         "jsx-a11y/no-autofocus": "off",
+        "prefer-destructuring": "warn",
     }
 };
