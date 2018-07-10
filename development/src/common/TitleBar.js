@@ -26,6 +26,6 @@ TitleBar.propTypes = {
 
 TitleBar.defaultProps = {
   className: '',
-}
+};
 
 export default TitleBar;

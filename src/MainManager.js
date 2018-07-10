@@ -2,12 +2,12 @@ const { app, ipcMain } = require('electron');
 
 const WindowManager = require('./WindowManager');
 const openMP3 = require('./utils/openMP3');
-const openNotification = require('./utils/openNotification');
+const sendFileToMainWin = require('./utils/sendFileToMainWin');
 require('./IpcManager');
 
 let argvPlayed;
 
-ipcMain.on('song-ended', () => argvPlayed = undefined);
+ipcMain.on('song-ended', () => argvPlayed = undefined);// when clicked song ended clear the argv
 
 const shouldQuit = app.makeSingleInstance((argv) => {
   // if user tryng to run the seconds instance of app
@@ -17,21 +17,7 @@ const shouldQuit = app.makeSingleInstance((argv) => {
     if (argv[1]) {
       if (argv[1] !== argvPlayed) {
         openMP3(argv[1], (err, fileObject) => {
-          if (err) console.log(err);
-
-          let songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
-
-          if (fileObject.tags) {
-            if (fileObject.tags.title && fileObject.tags.title.length > 0) {
-              songTitle = fileObject.tags.title;
-            }
-          }
-
-          mainWindow.webContents.send('opened-file', fileObject);
-
-          argvPlayed = argv[1];
-
-          openNotification('Playing', songTitle);
+          sendFileToMainWin(err, fileObject, () => argvPlayed = argv[1]);
         });
       }
     }

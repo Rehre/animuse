@@ -19,8 +19,8 @@
   "scripts": {
     "start": "set NODE_ENV=production && electron .",
     "dev": "electron .",
-    "build:react": "webpack",
     "dev:server": "webpack-dev-server --config webpack.dev.config.js",
+    "build:react": "webpack",
     "dist": "set NODE_ENV=production && electron-builder"
   },
   "keywords": [

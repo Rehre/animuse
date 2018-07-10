@@ -2,14 +2,13 @@ const {
   app,
   ipcMain,
   dialog,
-  // nativeImage,
 } = require('electron');
 const mp3Duration = require('mp3-duration');
 
 const openMP3 = require('./utils/openMP3');
 const searchMP3 = require('./utils/searchMP3');
 const getMediaTags = require('./utils/getMediaTags');
-const openNotification = require('./utils/openNotification');
+const sendFileToMainWin = require('./utils/sendFileToMainWin');
 const WindowManager = require('./WindowManager');
 // duration for asyncFunction to run
 let tagRunDuration = 0;
@@ -17,33 +16,19 @@ let timeRunDuration = 0;
 
 let waitedAsyncFunction = []; // save all the async function in here
 // when file is opened using app
-ipcMain.on('get-opening-file', (event) => {
+ipcMain.on('get-opening-file', () => {
   const data = process.argv[1] || undefined;
 
   if (!data) return;
 
-  openMP3(data, (err, fileObject) => {
-    if (err) console.log(err);
-
-    let songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
-
-    if (fileObject.tags) {
-      if (fileObject.tags.title && fileObject.tags.title.length > 0) {
-        songTitle = fileObject.tags.title;
-      }
-    }
-
-    event.sender.send('opened-file', fileObject);
-
-    openNotification('Playing', songTitle);
-  });
+  openMP3(data, sendFileToMainWin);
 });
 // when the close event is called from the mainWindow then quit the app
 ipcMain.on('close-app', () => {
   app.quit();
 });
 // use this when you want to send file to the mainWindow
-ipcMain.on('open-file', (event) => {
+ipcMain.on('open-file', () => {
   const file = dialog.showOpenDialog({
     title: 'Open audio file',
     properties: ['open-file'],
@@ -54,21 +39,7 @@ ipcMain.on('open-file', (event) => {
 
   if (!file) return;
 
-  openMP3(file[0], (err, fileObject) => {
-    if (err) event.sender.send('error-opening-mp3', err);
-
-    let songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
-
-    if (fileObject.tags) {
-      if (fileObject.tags.title && fileObject.tags.title.length > 0) {
-        songTitle = fileObject.tags.title;
-      }
-    }
-
-    event.sender.send('opened-file', fileObject);
-
-    openNotification('Playing', songTitle);
-  });
+  openMP3(file[0], sendFileToMainWin);
 });
 // use this to open a folder in the listWindow
 ipcMain.on('open-folder', (event) => {
@@ -95,20 +66,7 @@ ipcMain.on('open-window', (event, arg) => {
 });
 // use this to send file or play specific music to mainWindow
 ipcMain.on('send-file', (event, arg) => {
-  openMP3(arg, (err, fileObject) => {
-    if (err) WindowManager.mainWindow.webContents.send('send-failed-error', err);
-    let songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
-
-    if (fileObject.tags) {
-      if (fileObject.tags.title && fileObject.tags.title.length > 0) {
-        songTitle = fileObject.tags.title;
-      }
-    }
-
-    WindowManager.mainWindow.webContents.send('opened-file', fileObject);
-
-    openNotification('Playing', fileObject.tags.title || songTitle);
-  });
+  openMP3(arg, sendFileToMainWin);
 });
 // use this to send the change event(next or previous or random or loop-all-next) to list window
 ipcMain.on('change-player-song', (event, arg) => {
