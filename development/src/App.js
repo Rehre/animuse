@@ -4,6 +4,7 @@ import { HashRouter, Switch, Route } from 'react-router-dom';
 
 import MainWindow from './pages/MainWindow';
 import ListWindow from './pages/ListWindow';
+import SettingWindow from './pages/SettingWindow';
 
 class App extends React.Component {
   render() {
@@ -13,6 +14,7 @@ class App extends React.Component {
           <Switch>
             <Route exact path="/" component={MainWindow} />
             <Route path="/list" component={ListWindow} />
+            <Route path="/setting" component={SettingWindow} />
           </Switch>
         </div>
       </HashRouter>

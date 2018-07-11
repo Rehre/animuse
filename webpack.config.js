@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const MiniCSSExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJSWebpackPlugin = require('uglifyjs-webpack-plugin');
+const OptimizeCssAssetsExtractPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
   entry: './development/src/index.js',
@@ -49,6 +50,15 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
     new MiniCSSExtractPlugin(),
-    new UglifyJSWebpackPlugin(),
+    new webpack.optimization.ModuleConcatenationPlugin(),
   ],
+  optimization: {
+    minimizer: [
+      new UglifyJSWebpackPlugin({
+        cache: true,
+        parallel: true,
+      }),
+      new OptimizeCssAssetsExtractPlugin(),
+    ],
+  },
 };

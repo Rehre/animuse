@@ -9,7 +9,9 @@
   },
   "fileAssociations": [
     {
-      "ext": [".mp3"],
+      "ext": [
+        ".mp3"
+      ],
       "description": "Music file extension"
     }
   ],
@@ -48,6 +50,7 @@
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.4.0",
+    "optimize-css-assets-webpack-plugin": "^4.0.3",
     "prop-types": "^15.6.2",
     "style-loader": "^0.21.0",
     "uglifyjs-webpack-plugin": "^1.2.6",

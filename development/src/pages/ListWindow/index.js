@@ -89,7 +89,11 @@ class ListWindow extends React.Component {
     });
   }
 
-  openFolder() {
+  openFolder(arg) {
+    if (arg === 'add') {
+      ipcRenderer.send('open-folder-add');
+    }
+
     ipcRenderer.send('open-folder');
   }
 

@@ -15,6 +15,7 @@ let tagRunDuration = 0;
 let timeRunDuration = 0;
 
 let waitedAsyncFunction = []; // save all the async function in here
+
 // when file is opened using app
 ipcMain.on('get-opening-file', () => {
   const data = process.argv[1] || undefined;
