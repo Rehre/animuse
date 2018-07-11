@@ -91,7 +91,8 @@ class ListWindow extends React.Component {
 
   openFolder(arg) {
     if (arg === 'add') {
-      ipcRenderer.send('open-folder-add');
+      ipcRenderer.send('open-folder', 'add');
+      return;
     }
 
     ipcRenderer.send('open-folder');

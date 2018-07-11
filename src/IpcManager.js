@@ -43,7 +43,7 @@ ipcMain.on('open-file', () => {
   openMP3(file[0], sendFileToMainWin);
 });
 // use this to open a folder in the listWindow
-ipcMain.on('open-folder', (event) => {
+ipcMain.on('open-folder', (event, arg) => {
   const directory = dialog.showOpenDialog({
     title: 'Open Directories',
     properties: ['openDirectory'],
@@ -51,7 +51,7 @@ ipcMain.on('open-folder', (event) => {
 
   if (!directory) return;
 
-  event.sender.send('clear-list'); // clear the list when searching for new file
+  if (arg !== 'add') event.sender.send('clear-list'); // clear the list when searching for new file
   tagRunDuration = 0; // clear the time duration for getting tag function to run smoothly
   timeRunDuration = 0; // same goes for this
 
