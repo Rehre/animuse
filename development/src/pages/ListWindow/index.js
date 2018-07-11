@@ -297,7 +297,7 @@ class ListWindow extends React.Component {
     }
 
     return filteredAudioList.map((item) => {
-      const className = (selectedItem === item.id) ? 'music-list music-list-selected' : '';
+      const className = (selectedItem === item.id) ? 'music-list music-list--selected' : '';
 
       let titleHeader = item.title.substring(0, item.title.indexOf('.mp3'));
       let artistHeader = 'unknown artist';

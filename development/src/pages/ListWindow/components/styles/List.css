@@ -7,7 +7,7 @@ border-bottom: 1px solid silver;
 position: relative;
 }
 
-.music-list-selected {
+.music-list--selected {
     background-color: #2f3640;
     border-bottom: 1px solid #2f3640;
     color: white;
@@ -20,7 +20,7 @@ position: relative;
     border-bottom: 1px solid #2f3640;
 }
 
-#title-song {
+.music-list__title-song {
     font-family: 'OpenSans-SemiBold';
     position: absolute;
     left: 38px;
@@ -29,7 +29,7 @@ position: relative;
     font-weight: 100;
 }
 
-#album-and-size {
+.music-list__album-and-size {
     position: absolute;
     left: 38px;
     top: 24px;
@@ -37,14 +37,14 @@ position: relative;
     font-weight: 100;
 }
 
-#duration {
+.music-list__duration {
     position: absolute;
     right: 10px;
     top: 8px;
     font-size: 13px;
 }
 
-.button-move-item {
+.music-list__button-move-item {
     position: absolute;
     top: 50%;
     left: 15px;
@@ -52,14 +52,14 @@ position: relative;
     font-size: 25px;
 }
 
-.button-move-item i {
+.music-list__button-move-item i {
     color: #718093;
 }
 
-.music-list-selected .button-move-item i, .music-list:hover .button-move-item i {
+.music-list--selected .music-list__button-move-item, .music-list:hover .music-list__button-move-item i {
     color: white;
 }
 
-.music-list-selected .button-move-item i:hover, .music-list:hover .button-move-item i:hover {
+.music-list--selected .music-list__button-move-item i:hover, .music-list:hover .music-list__button-move-item i:hover {
     color: #718093;
 }

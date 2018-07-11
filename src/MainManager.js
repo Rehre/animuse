@@ -7,7 +7,7 @@ require('./IpcManager');
 
 let argvPlayed;
 
-ipcMain.on('song-ended', () => argvPlayed = undefined);// when clicked song ended clear the argv
+ipcMain.on('song-ended', () => argvPlayed = undefined); // when clicked song ended clear the argv
 
 const shouldQuit = app.makeSingleInstance((argv) => {
   // if user tryng to run the seconds instance of app

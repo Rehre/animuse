@@ -21,15 +21,15 @@ function List({
       <Touchable
         onClick={() => {}}
         icon="fas fa-ellipsis-v"
-        className="button-move-item"
+        className="music-list__button-move-item"
       />
-      <h4 id="title-song">
+      <h4 className="music-list__title-song">
         {title}
       </h4>
-      <span id="album-and-size">
+      <span className="music-list__album-and-size">
         {albumAndSize}
       </span>
-      <span id="duration">
+      <span className="music-list__duration">
         {duration}
       </span>
     </div>
