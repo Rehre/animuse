@@ -98,6 +98,10 @@ class ListWindow extends React.Component {
     ipcRenderer.send('open-folder');
   }
 
+  openFile() {
+    ipcRenderer.send('open-file', 'add');
+  }
+
   clearList() {
     localStorage.removeItem('music-list');
     localStorage.removeItem('music-total-size');

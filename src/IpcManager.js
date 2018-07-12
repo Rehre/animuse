@@ -29,7 +29,7 @@ ipcMain.on('close-app', () => {
   app.quit();
 });
 // use this when you want to send file to the mainWindow
-ipcMain.on('open-file', () => {
+ipcMain.on('open-file', (event, arg) => {
   const file = dialog.showOpenDialog({
     title: 'Open audio file',
     properties: ['open-file'],
@@ -40,7 +40,13 @@ ipcMain.on('open-file', () => {
 
   if (!file) return;
 
-  openMP3(file[0], sendFileToMainWin);
+  openMP3(file[0], (err, fileObject) => {
+    if (arg === 'add') {
+      event.sender.send('add-file-to-list', { filePath: fileObject.file });
+    } else {
+      sendFileToMainWin(err, fileObject);
+    }
+  });
 });
 // use this to open a folder in the listWindow
 ipcMain.on('open-folder', (event, arg) => {
