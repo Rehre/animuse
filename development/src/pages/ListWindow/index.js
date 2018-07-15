@@ -2,8 +2,8 @@
 import React from 'react';
 
 import './styles/ListWindow.css';
-import TitleBar from '../../common/TitleBar';
 import Touchable from '../../common/Touchable';
+import HeaderTitle from '../../common/HeaderTitle';
 
 import List from './components/List';
 
@@ -304,53 +304,14 @@ class ListWindow extends React.Component {
         return item.title.toLowerCase().includes(searchTerm.toLowerCase());
       });
     }
-    // TODO move the item mapping to List component
+
     return filteredAudioList.map((item) => {
-      const className = (selectedItem === item.id) ? 'music-list music-list--selected' : '';
-
-      let titleHeader = item.title.substring(0, item.title.indexOf('.mp3'));
-      let artistHeader = 'unknown artist';
-      let albumHeader = 'unknown album';
-      let sizeHeader = 'unknown size';
-      let duration = '';
-
-      if (item.size) sizeHeader = `${item.size}MB`;
-
-      if (item.duration) {
-        const secs = Math.trunc(item.duration % 60).toString();
-        const minutes = Math.trunc(item.duration / 60).toString();
-
-        duration = `${'00'.substr(minutes.length) + minutes}:${'00'.substr(secs.length) + secs}`;
-      }
-
-      if (item.tags) {
-        if (item.tags.title) {
-          titleHeader = item.tags.title;
-        }
-
-        if (item.tags.artist) {
-          artistHeader = item.tags.artist;
-        }
-
-        if (item.tags.album) {
-          albumHeader = item.tags.album;
-        }
-      }
-
-      let title = `${titleHeader} - ${artistHeader}`;
-      title = (title.length > 30) ? `${title.substring(0, 30)}...` : title;
-      let albumAndSize = `${albumHeader} - ${sizeHeader}`;
-      albumAndSize = (albumAndSize.length > 30) ? `${albumAndSize.substring(0, 30)}...` : albumAndSize;
-
       return (
         <List
-          id={item.id}
           key={item.id}
+          item={item}
+          selectedItem={selectedItem}
           onClick={() => this.sendFile(item.id, item.filePath)}
-          className={className}
-          title={title}
-          albumAndSize={albumAndSize}
-          duration={duration}
         />
       );
     });
@@ -361,13 +322,10 @@ class ListWindow extends React.Component {
 
     return (
       <div className="ListWindow">
-        {/* TODO move this to common component */}
-        <div className="header">
-          <TitleBar
-            onClose={() => this.toggleCloseMinimize('close')}
-            onMinimize={() => this.toggleCloseMinimize('minimize')}
-          />
-        </div>
+        <HeaderTitle
+          onClose={() => this.toggleCloseMinimize('close')}
+          onMinimize={() => this.toggleCloseMinimize('minimize')}
+        />
         {this.renderHead()}
         <div className="content">
           {this.renderList()}

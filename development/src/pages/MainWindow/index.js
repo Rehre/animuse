@@ -32,7 +32,7 @@ class MainWindow extends React.Component {
     ipcRenderer.send('get-opening-file');
 
     ipcRenderer.on('opened-file', (event, arg) => {
-      let title = path.baseName(arg.file);
+      let title = path.basename(arg.file);
 
       if (arg.tags) {
         if (arg.tags.title && arg.tags.title.length > 0) {

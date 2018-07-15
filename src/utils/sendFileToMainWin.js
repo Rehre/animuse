@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { mainWindow } = require('../WindowManager');
+const WindowManager = require('../WindowManager');
 const openNotification = require('./openNotification');
 
 function sendFileToMainWin(err, fileObject, cb = () => {}) {
@@ -14,7 +14,7 @@ function sendFileToMainWin(err, fileObject, cb = () => {}) {
     }
   }
 
-  mainWindow.webContents.send('opened-file', fileObject);
+  WindowManager.mainWindow.webContents.send('opened-file', fileObject);
 
   cb();
 

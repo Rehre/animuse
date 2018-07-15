@@ -15,5 +15,6 @@ module.exports = {
         "arrow-body-style": "off",
         "jsx-a11y/no-autofocus": "off",
         "prefer-destructuring": "warn",
+        "react/forbid-prop-types": "warn",
     }
 };

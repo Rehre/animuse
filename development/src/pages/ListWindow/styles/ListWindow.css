@@ -5,13 +5,6 @@
     user-select: none;
 }
 
-.ListWindow .header {
-    background-color: #353b48;
-    width: 100%;
-    height: 4%;
-    -webkit-app-region: drag;
-}
-
 .ListWindow .head {
     width: 100%;
     height: 7%;

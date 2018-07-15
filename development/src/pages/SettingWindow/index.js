@@ -1,5 +1,7 @@
 import React from 'react';
 
+import HeaderTitle from '../../common/HeaderTitle';
+
 class SettingWindow extends React.Component {
   render() {
     return (
