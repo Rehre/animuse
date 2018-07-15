@@ -98,7 +98,7 @@ class ListWindow extends React.Component {
     ipcRenderer.send('open-folder');
   }
 
-  openFile() {
+  addSingleFile() {
     ipcRenderer.send('open-file', 'add');
   }
 
@@ -304,7 +304,7 @@ class ListWindow extends React.Component {
         return item.title.toLowerCase().includes(searchTerm.toLowerCase());
       });
     }
-
+    // TODO move the item mapping to List component
     return filteredAudioList.map((item) => {
       const className = (selectedItem === item.id) ? 'music-list music-list--selected' : '';
 
@@ -361,6 +361,7 @@ class ListWindow extends React.Component {
 
     return (
       <div className="ListWindow">
+        {/* TODO move this to common component */}
         <div className="header">
           <TitleBar
             onClose={() => this.toggleCloseMinimize('close')}

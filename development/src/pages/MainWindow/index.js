@@ -6,6 +6,7 @@ import Player from './component/Player';
 import TitleBar from '../../common/TitleBar';
 
 const { ipcRenderer, remote } = window.require('electron');
+const path = window.require('path');
 
 class MainWindow extends React.Component {
   constructor(props) {
@@ -31,7 +32,7 @@ class MainWindow extends React.Component {
     ipcRenderer.send('get-opening-file');
 
     ipcRenderer.on('opened-file', (event, arg) => {
-      let title = arg.file.substring(arg.file.length, arg.file.lastIndexOf('\\') + 1);
+      let title = path.baseName(arg.file);
 
       if (arg.tags) {
         if (arg.tags.title && arg.tags.title.length > 0) {

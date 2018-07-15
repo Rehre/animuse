@@ -1,10 +1,12 @@
+const path = require('path');
+
 const { mainWindow } = require('../WindowManager');
 const openNotification = require('./openNotification');
 
 function sendFileToMainWin(err, fileObject, cb = () => {}) {
   if (err) console.log(err);
 
-  let songTitle = fileObject.file.substr(fileObject.file.lastIndexOf('\\') + 1);
+  let songTitle = path.basename(fileObject.file);
 
   if (fileObject.tags) {
     if (fileObject.tags.title && fileObject.tags.title.length > 0) {
