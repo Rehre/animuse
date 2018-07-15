@@ -92,6 +92,8 @@ ipcMain.on('get-song-tags', (event, audioFile) => {
 
   const id = `${filePath.substr(filePath.lastIndexOf('\\')) + Math.floor(Math.random() * 10000)}tags`;
   const tagFunc = setTimeout(() => {
+    event.sender.send('show-loading', 'show');
+
     getMediaTags(filePath, (err, data) => {
       const currentIndex = waitedAsyncFunction.findIndex(item => item.id === id);
       // if this function is run eventhough the waitedAsyncFunction is cleared then return;
@@ -112,6 +114,8 @@ ipcMain.on('get-song-duration', (event, audioFile) => {
 
   const id = `${filePath.substr(filePath.lastIndexOf('\\')) + Math.floor(Math.random() * 10000)}duration`;
   const durationFunc = setTimeout(() => {
+    event.sender.send('show-loading', 'show');
+
     mp3Duration(filePath, (err, data) => {
       const currentIndex = waitedAsyncFunction.findIndex(item => item.id === id);
       // if this function is run eventhough the waitedAsyncFunction is cleared then return;
@@ -120,6 +124,7 @@ ipcMain.on('get-song-duration', (event, audioFile) => {
 
       if (err) event.sender.send('error-update-duration', Object.assign({}, audioFile, { duration: data }));
 
+      event.sender.send('show-loading', 'remove');
       event.sender.send('update-duration', Object.assign({}, audioFile, { duration: data }));
     });
   }, timeRunDuration);

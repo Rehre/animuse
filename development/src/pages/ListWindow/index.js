@@ -4,6 +4,7 @@ import React from 'react';
 import './styles/ListWindow.css';
 import Touchable from '../../common/Touchable';
 import HeaderTitle from '../../common/HeaderTitle';
+import Modal from '../../common/Modal';
 
 import List from './components/List';
 
@@ -20,6 +21,7 @@ class ListWindow extends React.Component {
       totalSize: 0,
       searchTerm: '',
       isSearchBarShow: false,
+      isLoadingShow: false,
     };
 
     this.runStorageChecker = this.runStorageChecker.bind(this);
@@ -34,6 +36,7 @@ class ListWindow extends React.Component {
     this.renderSearchBar = this.renderSearchBar.bind(this);
     this.renderHead = this.renderHead.bind(this);
     this.renderList = this.renderList.bind(this);
+    this.renderLoading = this.renderLoading.bind(this);
   }
 
   componentDidMount() {
@@ -57,6 +60,14 @@ class ListWindow extends React.Component {
 
     ipcRenderer.on('update-duration', (event, arg) => {
       this.updateDuration(arg);
+    });
+
+    ipcRenderer.on('show-loading', (ev, arg) => {
+      if (arg === 'show') {
+        this.setState({ isLoadingShow: true });
+      } else {
+        this.setState({ isLoadingShow: false });
+      }
     });
   }
 
@@ -142,6 +153,7 @@ class ListWindow extends React.Component {
   // this will automatically send the get-song-duration event to ipcManager
   updateTags(file) {
     const { audiolist, totalSize } = this.state;
+
     const newAudioList = [...audiolist];
     const currentIndex = newAudioList.findIndex(item => item.id === file.id);
 
@@ -317,11 +329,24 @@ class ListWindow extends React.Component {
     });
   }
 
+  renderLoading() {
+    const { isLoadingShow } = this.state;
+
+    if (isLoadingShow) {
+      return (
+        <i className="fas fa-spinner spin" />
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { totalSize } = this.state;
 
     return (
       <div className="ListWindow">
+        <Modal />
         <HeaderTitle
           onClose={() => this.toggleCloseMinimize('close')}
           onMinimize={() => this.toggleCloseMinimize('minimize')}
@@ -342,6 +367,7 @@ class ListWindow extends React.Component {
             className="button-list-clear"
           />
           <div className="list-description">
+            {this.renderLoading()}
             <span className="list-description__size">{totalSize.toFixed(2)} MB</span>
             {' '}
             /
