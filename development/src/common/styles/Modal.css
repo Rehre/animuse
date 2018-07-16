@@ -23,7 +23,7 @@
     height: 200px;
     left: 50%;
     top: 50%;
-    animation: slideFromTop 0.4s ease-in-out;
+    animation: slideFromTop 0.2s ease-in-out;
     margin-top: -125px;
     margin-left: -125px;
 }

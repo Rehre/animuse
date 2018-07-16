@@ -24,6 +24,7 @@ class ListWindow extends React.Component {
       isLoadingShow: false,
     };
 
+    this.toggleAddModal = this.toggleAddModal.bind(this);
     this.runStorageChecker = this.runStorageChecker.bind(this);
     this.runTagUpdater = this.runTagUpdater.bind(this);
     this.clearList = this.clearList.bind(this);
@@ -37,6 +38,7 @@ class ListWindow extends React.Component {
     this.renderHead = this.renderHead.bind(this);
     this.renderList = this.renderList.bind(this);
     this.renderLoading = this.renderLoading.bind(this);
+    this.renderAddModal = this.renderAddModal.bind(this);
   }
 
   componentDidMount() {
@@ -79,6 +81,12 @@ class ListWindow extends React.Component {
     if (status === 'minimize') {
       remote.getCurrentWindow().minimize();
     }
+  }
+
+  toggleAddModal() {
+    const { isAddModalShow } = this.state;
+
+    this.setState({ isAddModalShow: !isAddModalShow });
   }
 
   runStorageChecker() {
@@ -332,13 +340,52 @@ class ListWindow extends React.Component {
   renderLoading() {
     const { isLoadingShow } = this.state;
 
-    if (isLoadingShow) {
-      return (
-        <i className="fas fa-spinner spin" />
-      );
-    }
+    if (!isLoadingShow) return null;
 
-    return null;
+    return (
+      <i className="fas fa-spinner spin" />
+    );
+  }
+
+  renderAddModal() {
+    const { isAddModalShow } = this.state;
+
+    if (!isAddModalShow) return null;
+
+    return (
+      <Modal
+        className="wrapper-add-modal"
+        closeFunction={this.toggleAddModal}
+      >
+        <div className="add-modal">
+          <div className="add-modal__title">
+            <h3>Add music</h3>
+          </div>
+          <div className="add-modal__button">
+            <div
+              className="add-modal__button__folder"
+              onClick={() => {
+                this.setState({ isAddModalShow: false }, () => {
+                  this.openFolder('add');
+                });
+              }}
+            >
+              <span>Add directory</span>
+            </div>
+            <div
+              className="add-modal__button__file"
+              onClick={() => {
+                this.setState({ isAddModalShow: false }, () => {
+                  this.addSingleFile();
+                });
+              }}
+            >
+              <span>Add file</span>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    );
   }
 
   render() {
@@ -346,7 +393,6 @@ class ListWindow extends React.Component {
 
     return (
       <div className="ListWindow">
-        <Modal />
         <HeaderTitle
           onClose={() => this.toggleCloseMinimize('close')}
           onMinimize={() => this.toggleCloseMinimize('minimize')}
@@ -366,6 +412,12 @@ class ListWindow extends React.Component {
             icon="fas fa-ban"
             className="button-list-clear"
           />
+          <Touchable
+            onClick={this.toggleAddModal}
+            icon="fas fa-plus"
+            className="button-add-file"
+          />
+          {this.renderAddModal()}
           <div className="list-description">
             {this.renderLoading()}
             <span className="list-description__size">{totalSize.toFixed(2)} MB</span>

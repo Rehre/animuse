@@ -109,6 +109,13 @@
     left: 50px;
 }
 
+
+.button-add-file {
+    position: absolute;
+    bottom: 15px;
+    left: 80px;
+}
+
 .list-description {
     position: absolute;
     color: white;
@@ -127,3 +134,30 @@
     0% {transform: rotateZ(0deg)}
     100% {transform: rotateZ(360deg)}
 }
+
+.wrapper-add-modal {
+    height: 130px !important;
+}
+
+.add-modal__title {
+    width: 180;
+    padding: 5px;
+    padding-top: 2px;
+    padding-left: 10px;
+}
+
+.add-modal__button {
+    height: 100%;
+}
+
+.add-modal__button__folder, .add-modal__button__file {
+    padding: 15px;
+    font-size: 14px;
+    padding-left: 10px;
+}
+
+.add-modal__button__folder:hover, .add-modal__button__file:hover {
+    cursor: pointer;
+    background-color: #c0392b;
+}
+

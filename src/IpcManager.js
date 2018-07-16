@@ -80,20 +80,20 @@ ipcMain.on('change-player-song', (event, arg) => {
   WindowManager.listWindow.webContents.send('change-song', arg);
 });
 // cancel all the asyc function and clear the array
-ipcMain.on('cancel-all-async-function', () => {
+ipcMain.on('cancel-all-async-function', (event) => {
   waitedAsyncFunction.forEach(item => clearTimeout(item.timeout));
   waitedAsyncFunction = [];
+  event.sender.send('show-loading', 'remove');
 });
 // use this to get the song tags (this will automatically run the get duration from the listWindow)
 ipcMain.on('get-song-tags', (event, audioFile) => {
   const { filePath } = audioFile;
 
   tagRunDuration += 500;
+  event.sender.send('show-loading', 'show');
 
   const id = `${filePath.substr(filePath.lastIndexOf('\\')) + Math.floor(Math.random() * 10000)}tags`;
   const tagFunc = setTimeout(() => {
-    event.sender.send('show-loading', 'show');
-
     getMediaTags(filePath, (err, data) => {
       const currentIndex = waitedAsyncFunction.findIndex(item => item.id === id);
       // if this function is run eventhough the waitedAsyncFunction is cleared then return;
