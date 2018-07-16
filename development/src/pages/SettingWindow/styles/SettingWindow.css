@@ -1,0 +1,6 @@
+.SettingWindow {
+    position: relative;
+    height: 600px;
+    overflow: hidden;
+    user-select: none;
+}

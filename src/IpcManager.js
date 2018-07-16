@@ -70,6 +70,10 @@ ipcMain.on('open-window', (event, arg) => {
   if (arg === 'list') {
     WindowManager.listWindow.show();
   }
+
+  if (arg === 'setting') {
+    WindowManager.settingWindow.show();
+  }
 });
 // use this to send file or play specific music to mainWindow
 ipcMain.on('send-file', (event, arg) => {

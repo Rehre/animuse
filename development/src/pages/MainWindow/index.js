@@ -4,6 +4,7 @@ import React from 'react';
 import './styles/MainWindow.css';
 import Player from './component/Player';
 import TitleBar from '../../common/TitleBar';
+import Touchable from '../../common/Touchable';
 
 const { ipcRenderer, remote } = window.require('electron');
 const path = window.require('path');
@@ -26,6 +27,7 @@ class MainWindow extends React.Component {
     this.animateTitle = this.animateTitle.bind(this);
     this.renderTitle = this.renderTitle.bind(this);
     this.renderImageThumbnail = this.renderImageThumbnail.bind(this);
+    this.renderButtonConfig = this.renderButtonConfig.bind(this);
   }
 
   componentDidMount() {
@@ -149,6 +151,24 @@ class MainWindow extends React.Component {
     );
   }
 
+  renderButtonConfig() {
+    const { pictureData } = this.state;
+
+    let className = 'button-config';
+
+    if (pictureData) {
+      className += ' button-config--white';
+    }
+
+    return (
+      <Touchable
+        onClick={() => this.openWindow('setting')}
+        icon="fas fa-cog"
+        className={className}
+      />
+    );
+  }
+
   render() {
     const { file } = this.state;
 
@@ -161,6 +181,7 @@ class MainWindow extends React.Component {
           />
           {this.renderImageThumbnail()}
           {this.renderTitle()}
+          {this.renderButtonConfig()}
         </div>
         <div className="player-container">
           <Player

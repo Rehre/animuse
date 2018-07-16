@@ -51,3 +51,20 @@
     height: 30%;
     position: relative;
 }
+
+.MainWindow .header .button-config {
+    -webkit-app-region: no-drag;
+    color: #353b48;
+    position: absolute;
+    left: 10px;
+    top: 10px;
+}
+
+.MainWindow .header .button-config i {
+    color: #353b48;
+}
+
+.MainWindow .header .button-config--white i {
+    color: white;
+    text-shadow: 0.5px 0.5px 5px #353b48;
+}
