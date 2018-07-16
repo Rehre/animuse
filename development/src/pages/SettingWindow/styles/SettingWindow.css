@@ -4,3 +4,34 @@
     overflow: hidden;
     user-select: none;
 }
+
+.setting-list__item {
+    width: 100%;
+    height: 40px;
+    border-bottom: 1px solid #eeeeee;
+    padding: 5px;
+    position: relative;
+}
+
+.setting-list__item:hover {
+    background-color: #c0392b;
+    cursor: pointer;
+    color: white;
+    border-bottom: 1px solid #c0392b;
+}
+
+.setting-list__item__title {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    margin-top: -10px;
+    font-weight: 400;
+}
+
+.setting-list__item__input {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    outline: none;
+    margin-top: -5px;
+}

@@ -3,6 +3,8 @@ const {
   ipcMain,
   dialog,
 } = require('electron');
+const fs = require('fs');
+const path = require('path');
 const mp3Duration = require('mp3-duration');
 
 const openMP3 = require('./utils/openMP3');
@@ -134,4 +136,23 @@ ipcMain.on('get-song-duration', (event, audioFile) => {
   }, timeRunDuration);
 
   waitedAsyncFunction.push({ id, timeout: durationFunc });
+});
+// get the user setting and send to SettingWindow
+ipcMain.on('get-setting', (event) => {
+  const settings = fs.readFileSync(path.join(__dirname, 'userSetting.json'), { encoding: 'utf8' });
+  const settingsObject = JSON.parse(settings);
+
+  event.sender.send('sended-setting', settingsObject);
+});
+// change setting in userSetting.json
+ipcMain.on('change-setting', (event, arg) => {
+  const userSettingsPath = path.join(__dirname, 'userSetting.json');
+
+  const settings = fs.readFileSync(userSettingsPath, { encoding: 'utf8' });
+  const settingsObject = JSON.parse(settings);
+
+  settingsObject[arg.properties] = arg.value;
+
+  event.sender.send('sended-setting', settingsObject);
+  fs.writeFileSync(userSettingsPath, JSON.stringify(settingsObject));
 });
