@@ -321,6 +321,10 @@ class ListWindow extends React.Component {
 
     if (searchTerm.length > 0) {
       filteredAudioList = audiolist.filter((item) => {
+        if (item.tags && item.tags.title) {
+          return item.tags.title.toLowerCase().includes(searchTerm.toLowerCase());
+        }
+
         return item.title.toLowerCase().includes(searchTerm.toLowerCase());
       });
     }
