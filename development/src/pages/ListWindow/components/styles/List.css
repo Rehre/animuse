@@ -56,7 +56,7 @@ position: relative;
     color: #718093;
 }
 
-.music-list--selected .music-list__button-move-item, .music-list:hover .music-list__button-move-item i {
+.music-list--selected .music-list__button-move-item i, .music-list:hover .music-list__button-move-item i {
     color: white;
 }
 
