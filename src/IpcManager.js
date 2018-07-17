@@ -154,5 +154,6 @@ ipcMain.on('change-setting', (event, arg) => {
   settingsObject[arg.properties] = arg.value;
 
   event.sender.send('sended-setting', settingsObject);
+
   fs.writeFileSync(userSettingsPath, JSON.stringify(settingsObject));
 });

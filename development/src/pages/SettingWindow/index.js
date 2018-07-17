@@ -4,6 +4,8 @@ import React from 'react';
 import './styles/SettingWindow.css';
 import HeaderTitle from '../../common/HeaderTitle';
 
+import SettingItem from './components/SettingItem';
+
 const { ipcRenderer, remote } = window.require('electron');
 class SettingWindow extends React.Component {
   constructor(props) {
@@ -37,21 +39,22 @@ class SettingWindow extends React.Component {
           onMinimize={() => this.toggleCloseMinimize('minimize')}
         />
         <div className="setting-list">
-          <div
-            className="setting-list__item"
+          <SettingItem
+            title="Notification"
             onClick={() => ipcRenderer.send('change-setting', {
               properties: 'notification',
               value: !(setting.notification),
             })}
-          >
-            <h4 className="setting-list__item__title">Notification</h4>
-            <input
-              className="setting-list__item__input"
-              type="checkbox"
-              readOnly
-              defaultChecked={setting.notification}
-            />
-          </div>
+            custom={() => {
+              return (
+                <input
+                  type="checkbox"
+                  readOnly
+                  defaultChecked={setting.notification}
+                />
+              );
+            }}
+          />
         </div>
       </div>
     );

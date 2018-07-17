@@ -150,6 +150,10 @@
     height: 100%;
 }
 
+.add-modal__button span {
+    color: var(--text-color);
+}
+
 .add-modal__button__folder, .add-modal__button__file {
     padding: 15px;
     font-size: 14px;
@@ -158,6 +162,6 @@
 
 .add-modal__button__folder:hover, .add-modal__button__file:hover {
     cursor: pointer;
-    background-color: #c0392b;
+    background-color: var(--icon-hover-color);
 }
 

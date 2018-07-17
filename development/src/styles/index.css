@@ -13,6 +13,11 @@
     src: url('./../fonts/OpenSans/OpenSans-SemiBold.ttf');
 }
 
+/* variable for theming */
+body {
+    --text-color: white;
+    --icon-hover-color: #c0392b;
+}
 
 * {
     margin: 0px;

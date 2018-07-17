@@ -2,7 +2,7 @@
 import React from 'react';
 
 import './styles/MainWindow.css';
-import Player from './component/Player';
+import Player from './components/Player';
 import TitleBar from '../../common/TitleBar';
 import Touchable from '../../common/Touchable';
 
