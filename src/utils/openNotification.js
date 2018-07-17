@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 let notification;
+let waitedNotification;
 
 function openNotification(title, body) {
   // look at the setting if true then show
@@ -10,7 +11,10 @@ function openNotification(title, body) {
   const notificationSettings = JSON.parse(settings).notification;
   if (!notificationSettings) return;
 
-  if (notification) notification.close();
+  if (notification) {
+    notification.close();
+    clearTimeout(waitedNotification);
+  }
 
   notification = new Notification({
     title,
@@ -18,7 +22,7 @@ function openNotification(title, body) {
     silent: true,
   });
 
-  notification.show();
+  waitedNotification = setTimeout(() => notification.show(), 1000);
 }
 
 module.exports = openNotification;

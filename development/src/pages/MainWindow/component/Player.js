@@ -75,11 +75,6 @@ class Player extends React.Component {
     const { isRandomized, isLoopedAll } = this.state;
     const { changeSong } = this.props;
 
-    this.audio.pause();
-    this.audio.currentTime = 0;
-    this.audio.src = '';
-    this.audio.load();
-
     if (isRandomized) {
       changeSong('random');
       return;
