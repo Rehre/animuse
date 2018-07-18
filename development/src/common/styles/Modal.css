@@ -23,7 +23,6 @@
     height: 200px;
     left: 50%;
     top: 50%;
-    animation: slideFromTop 0.2s ease-in-out;
     margin-top: -125px;
     margin-left: -125px;
 }
@@ -38,11 +37,6 @@
 .Modal__close-modal-button:hover{ 
     color: #e74c3c;
     cursor: pointer;
-}
-
-@keyframes slideFromTop {
-    0% {top: 0%}
-    100% {top: 50%}
 }
 
 @keyframes opacity {

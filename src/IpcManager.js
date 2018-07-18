@@ -153,7 +153,13 @@ ipcMain.on('change-setting', (event, arg) => {
 
   settingsObject[arg.properties] = arg.value;
 
-  event.sender.send('sended-setting', settingsObject);
+  if (arg.sendToAll) {
+    WindowManager.mainWindow.webContents.send('sended-setting', settingsObject);
+    WindowManager.listWindow.webContents.send('sended-setting', settingsObject);
+    WindowManager.settingWindow.webContents.send('sended-setting', settingsObject);
+  } else {
+    event.sender.send('sended-setting', settingsObject);
+  }
 
   fs.writeFileSync(userSettingsPath, JSON.stringify(settingsObject));
 });
