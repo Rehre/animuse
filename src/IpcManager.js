@@ -41,6 +41,10 @@ ipcMain.on('open-file', (event, arg) => {
   });
 
   if (!file) return;
+  if (arg === 'add') {
+    tagRunDuration = 0;
+    timeRunDuration = 0;
+  }
 
   openMP3(file[0], (err, fileObject) => {
     if (arg === 'add') {
