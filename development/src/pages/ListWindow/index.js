@@ -102,7 +102,7 @@ class ListWindow extends React.Component {
     if (audiolist.length === 0) return;
 
     audiolist.forEach((item) => {
-      if (!(item.size) || !(item.tags) || !(item.duration)) {
+      if (!(item.errorTag) && (!(item.size) || !(item.tags) || !(item.duration))) {
         ipcRenderer.send('get-song-tags', item);
       }
     });

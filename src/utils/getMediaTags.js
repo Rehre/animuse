@@ -17,12 +17,14 @@ function getMediaTags(filePath, callback) {
           album: tag.tags.album,
           artist: tag.tags.artist,
         },
+        errorTag: false,
       });
     },
     onError: (error) => {
       callback(error, {
         filePath,
         size,
+        errorTag: true,
       });
     },
   });
