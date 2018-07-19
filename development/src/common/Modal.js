@@ -29,12 +29,14 @@ class Modal extends React.Component {
 
 Modal.propTypes = {
   className: PropTypes.string,
+  wrapperClassName: PropTypes.string,
   children: PropTypes.object.isRequired,
   closeFunction: PropTypes.func.isRequired,
 };
 
 Modal.defaultProps = {
   className: '',
+  wrapperClassName: '',
 };
 
 export default Modal;
