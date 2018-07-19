@@ -63,3 +63,27 @@ position: relative;
 .music-list--selected .music-list__button-move-item i:hover, .music-list:hover .music-list__button-move-item i:hover {
     color: #718093;
 }
+
+.modal-item-description {
+    position: fixed !important;
+}
+
+.modal-description {
+    position: absolute;
+    top: 20px;
+    padding: 0x;
+    width: 250px !important;
+    overflow-x: scroll;
+    height: 99%;
+    white-space: pre;
+    font-weight: 200;
+    user-select: auto;
+}
+
+.modal-description span {
+    position: relative;
+    top: 10px;
+    left: 20px;
+    font-size: 14px;
+}
+

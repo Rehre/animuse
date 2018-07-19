@@ -5,10 +5,15 @@ import './styles/Modal.css';
 
 class Modal extends React.Component {
   render() {
-    const { children, className, closeFunction } = this.props;
+    const {
+      children,
+      className,
+      closeFunction,
+      wrapperClassName,
+    } = this.props;
 
     return (
-      <div className="Modal">
+      <div className={`Modal ${wrapperClassName}`}>
         <div className="Modal__transparent-box" />
         <div className={`Modal__modal-box ${className}`}>
           <i
