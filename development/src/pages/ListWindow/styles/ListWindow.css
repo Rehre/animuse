@@ -109,7 +109,6 @@
     left: 50px;
 }
 
-
 .button-add-file {
     position: absolute;
     bottom: 15px;
@@ -139,15 +138,10 @@
     height: 130px !important;
 }
 
-.add-modal__title {
-    width: 180;
-    padding: 5px;
-    padding-top: 2px;
-    padding-left: 10px;
-}
-
 .add-modal__button {
     height: 100%;
+    position: relative;
+    top: 33px;
 }
 
 .add-modal__button span {

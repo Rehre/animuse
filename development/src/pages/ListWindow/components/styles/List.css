@@ -8,16 +8,16 @@ position: relative;
 }
 
 .music-list--selected {
-    background-color: #2f3640;
-    border-bottom: 1px solid #2f3640;
-    color: white;
+    background-color: var(--icon-hover-color);
+    border-bottom: 1px solid var(--icon-hover-color);
+    color: var(--text-color);
 }
 
 .music-list:hover {
-    background-color: #2f3640;
+    background-color: var(--icon-hover-color);
     cursor: pointer;
-    color: white;
-    border-bottom: 1px solid #2f3640;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--icon-hover-color);
 }
 
 .music-list__title-song {
@@ -85,5 +85,12 @@ position: relative;
     top: 10px;
     left: 20px;
     font-size: 14px;
+}
+
+.modal-description__item--delete-button {
+    position: relative;
+    left: 50%;
+    top: 15px;
+    margin-left: -10px;
 }
 

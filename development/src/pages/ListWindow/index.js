@@ -28,6 +28,7 @@ class ListWindow extends React.Component {
     this.runStorageChecker = this.runStorageChecker.bind(this);
     this.runTagUpdater = this.runTagUpdater.bind(this);
     this.clearList = this.clearList.bind(this);
+    this.deleteSingleListItem = this.deleteSingleListItem.bind(this);
     this.listenToFile = this.listenToFile.bind(this);
     this.updateTags = this.updateTags.bind(this);
     this.updateDuration = this.updateDuration.bind(this);
@@ -136,6 +137,14 @@ class ListWindow extends React.Component {
     });
   }
 
+  deleteSingleListItem(id) {
+    const { audiolist } = this.state;
+
+    const newAudioList = audiolist.filter(item => item.id !== id);
+
+    this.setState({ audiolist: newAudioList });
+  }
+
   // this will automatically send the get-song-tags event to ipcManager
   listenToFile(file) {
     const { audiolist } = this.state;
@@ -218,7 +227,11 @@ class ListWindow extends React.Component {
     }
 
     if (state === 'next') {
-      if (currentIndex >= audiolist.length - 1) return;
+      if (currentIndex >= audiolist.length - 1) {
+        this.setState({ selectedItem: '' });
+
+        return;
+      }
 
       const itemtoSend = audiolist[++currentIndex];
 
@@ -336,6 +349,7 @@ class ListWindow extends React.Component {
           item={item}
           selectedItem={selectedItem}
           onClick={() => this.sendFile(item.id, item.filePath)}
+          deleteFunction={this.deleteSingleListItem}
         />
       );
     });
@@ -362,9 +376,6 @@ class ListWindow extends React.Component {
         closeFunction={this.toggleAddModal}
       >
         <div className="add-modal">
-          <div className="add-modal__title">
-            <h3>Add music</h3>
-          </div>
           <div className="add-modal__button">
             <div
               className="add-modal__button__folder"

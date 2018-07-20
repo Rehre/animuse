@@ -58,6 +58,7 @@ class List extends React.Component {
     albumAndSize = (albumAndSize.length > 30) ? `${albumAndSize.substring(0, 30)}...` : albumAndSize;
 
     return {
+      id: item.id,
       className,
       onClick,
       albumAndSize,
@@ -77,11 +78,13 @@ class List extends React.Component {
   renderDescriptionModal() {
     const { isDescriptionShow } = this.state;
     const {
+      id,
       title,
       albumAndSize,
       filePath,
       duration,
     } = this.getItemDetail();
+    const { deleteFunction } = this.props;
 
     if (!isDescriptionShow) return null;
 
@@ -114,6 +117,11 @@ class List extends React.Component {
           <div className="modal-description__item--path">
             <span>Dir: {filePath}</span>
           </div>
+          <Touchable
+            onClick={() => deleteFunction(id)}
+            icon="fas fa-ban"
+            className="modal-description__item--delete-button"
+          />
         </div>
       </Modal>
     );
@@ -159,6 +167,7 @@ List.propTypes = {
   item: PropTypes.object.isRequired,
   selectedItem: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
+  deleteFunction: PropTypes.func.isRequired,
 };
 
 export default List;
