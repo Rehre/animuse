@@ -73,7 +73,7 @@ position: relative;
     top: 20px;
     padding: 0x;
     width: 250px !important;
-    overflow-x: scroll;
+    overflow-x: auto;
     height: 99%;
     white-space: pre;
     font-weight: 200;
@@ -88,9 +88,9 @@ position: relative;
 }
 
 .modal-description__item--delete-button {
-    position: relative;
+    position: absolute;
     left: 50%;
-    top: 15px;
+    bottom: 25px;
     margin-left: -10px;
 }
 

@@ -16,5 +16,8 @@ module.exports = {
         "jsx-a11y/no-autofocus": "off",
         "prefer-destructuring": "warn",
         "react/forbid-prop-types": "warn",
+        "consistent-return": "warn",
+        "no-useless-return": "warn",
+        "array-callback-return": "warn",
     }
 };

@@ -112,7 +112,13 @@
 .button-add-file {
     position: absolute;
     bottom: 15px;
-    left: 80px;
+    left: 83px;
+}
+
+.button-sort-list {
+    position: absolute;
+    bottom: 15px;
+    left: 113px;
 }
 
 .list-description {
@@ -159,3 +165,40 @@
     background-color: var(--icon-hover-color);
 }
 
+.item-wrapper {
+    width: 100%;
+    position: absolute;
+    top: 30px;
+}
+
+.item-wrapper__option {
+    width: 240px;
+    padding: 5px;
+    height: 30px;
+}
+
+.item-wrapper__option:hover {
+    cursor: pointer;
+    color: var(--text-color);
+    background-color: var(--icon-hover-color);
+}
+
+.item-wrapper__option span {
+    display: inline-block;
+    margin-left: 6px;
+}
+
+.item-wrapper__option__selector {
+    width: 6px;
+    height: 6px;
+    margin-left: 20px;
+    border-radius: 20px;
+    border: 1px solid var(--text-color);
+    display: inline-block;
+    position: relative;
+    bottom: 1px;
+}
+
+.item-wrapper__option__selector--on {
+    background-color: var(--text-color);
+}

@@ -64,6 +64,10 @@ class List extends React.Component {
       albumAndSize,
       title,
       duration,
+      titleHeader,
+      artistHeader,
+      sizeHeader,
+      albumHeader,
       filePath: item.filePath,
     };
   }
@@ -79,8 +83,10 @@ class List extends React.Component {
     const { isDescriptionShow } = this.state;
     const {
       id,
-      title,
-      albumAndSize,
+      titleHeader,
+      albumHeader,
+      sizeHeader,
+      artistHeader,
       filePath,
       duration,
     } = this.getItemDetail();
@@ -88,10 +94,10 @@ class List extends React.Component {
 
     if (!isDescriptionShow) return null;
 
-    const realTitle = title.split(' - ')[0];
-    const artist = title.split(' - ')[1];
-    const album = albumAndSize.split(' - ')[0];
-    const size = albumAndSize.split(' - ')[1];
+    const title = titleHeader;
+    const artist = artistHeader;
+    const album = albumHeader;
+    const size = sizeHeader;
 
     return (
       <Modal
@@ -100,22 +106,24 @@ class List extends React.Component {
       >
         <div className="modal-description">
           <div className="modal-description__item--title">
-            <span>Title: {realTitle}</span>
+            <span>Title: {(title.length > 20) ? `${title.substr(0, 20)}...` : title}</span>
           </div>
           <div className="modal-description__item--artist">
-            <span>Artist: {artist}</span>
+            <span>Artist: {(artist.length > 20) ? `${artist.substr(0, 20)}...` : artist}</span>
           </div>
           <div className="modal-description__item--album">
-            <span>Album: {album}</span>
+            <span>Album: {(album.length > 20) ? `${album.substr(0, 20)}...` : album}</span>
           </div>
           <div className="modal-description__item--size">
-            <span>Size: {size}</span>
+            <span>Size: {(size.length > 20) ? `${size.substr(0, 20)}...` : size}</span>
           </div>
           <div className="modal-description__item--size">
-            <span>Duration: {duration}</span>
+            <span>Duration: {(duration.length > 20) ? `${duration.substr(0, 20)}...` : duration}</span>
           </div>
           <div className="modal-description__item--path">
-            <span>Dir: {filePath}</span>
+            <span>
+              Dir: {(filePath.length > 20) ? `${filePath.substr(0, 20)}...` : filePath}
+            </span>
           </div>
           <Touchable
             onClick={() => deleteFunction(id)}

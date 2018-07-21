@@ -1,5 +1,6 @@
 /* eslint-env browser */
 import React from 'react';
+import update from 'immutability-helper';
 
 import './styles/ListWindow.css';
 import Touchable from '../../common/Touchable';
@@ -20,15 +21,19 @@ class ListWindow extends React.Component {
       totalTime: 0,
       totalSize: 0,
       searchTerm: '',
+      sortValue: '',
       isSearchBarShow: false,
       isLoadingShow: false,
+      isAddModalShow: false,
+      isSortModalShow: false,
     };
 
-    this.toggleAddModal = this.toggleAddModal.bind(this);
+    this.toggleModal = this.toggleModal.bind(this);
+    this.toggleSorter = this.toggleSorter.bind(this);
     this.runStorageChecker = this.runStorageChecker.bind(this);
     this.runTagUpdater = this.runTagUpdater.bind(this);
+    this.deleteSingleListFile = this.deleteSingleListFile.bind(this);
     this.clearList = this.clearList.bind(this);
-    this.deleteSingleListItem = this.deleteSingleListItem.bind(this);
     this.listenToFile = this.listenToFile.bind(this);
     this.updateTags = this.updateTags.bind(this);
     this.updateDuration = this.updateDuration.bind(this);
@@ -40,6 +45,7 @@ class ListWindow extends React.Component {
     this.renderList = this.renderList.bind(this);
     this.renderLoading = this.renderLoading.bind(this);
     this.renderAddModal = this.renderAddModal.bind(this);
+    this.renderSortModal = this.renderSortModal.bind(this);
   }
 
   componentDidMount() {
@@ -84,17 +90,37 @@ class ListWindow extends React.Component {
     }
   }
 
-  toggleAddModal() {
-    const { isAddModalShow } = this.state;
+  toggleModal(modal) {
+    const { isAddModalShow, isSortModalShow } = this.state;
 
-    this.setState({ isAddModalShow: !isAddModalShow });
+    if (modal === 'add') this.setState({ isAddModalShow: !isAddModalShow });
+    if (modal === 'sort') this.setState({ isSortModalShow: !isSortModalShow });
+  }
+
+  toggleSorter(value) {
+    if (value === 'default') {
+      localStorage.setItem('sort-value', '');
+      this.setState({ sortValue: '' });
+    }
+
+    if (value === 'title') {
+      localStorage.setItem('sort-value', 'title');
+      this.setState({ sortValue: 'title' });
+    }
   }
 
   runStorageChecker() {
     const audiolist = JSON.parse(localStorage.getItem('music-list')) || [];
     const totalSize = JSON.parse(localStorage.getItem('music-total-size')) || 0;
     const totalTime = JSON.parse(localStorage.getItem('music-total-time')) || 0;
-    this.setState({ audiolist, totalSize, totalTime }, this.runTagUpdater);
+    const sortValue = localStorage.getItem('sort-value') || '';
+
+    this.setState({
+      audiolist,
+      totalSize,
+      totalTime,
+      sortValue,
+    }, this.runTagUpdater);
   }
 
   runTagUpdater() {
@@ -122,6 +148,15 @@ class ListWindow extends React.Component {
     ipcRenderer.send('open-file', 'add');
   }
 
+  deleteSingleListFile(id) {
+    const { audiolist } = this.state;
+
+    const newAudioList = audiolist.filter(item => item.id !== id);
+
+    localStorage.setItem('music-list', JSON.stringify(newAudioList));
+    this.setState({ audiolist: newAudioList });
+  }
+
   clearList() {
     localStorage.removeItem('music-list');
     localStorage.removeItem('music-total-size');
@@ -135,14 +170,6 @@ class ListWindow extends React.Component {
       totalTime: 0,
       totalSize: 0,
     });
-  }
-
-  deleteSingleListItem(id) {
-    const { audiolist } = this.state;
-
-    const newAudioList = audiolist.filter(item => item.id !== id);
-
-    this.setState({ audiolist: newAudioList });
   }
 
   // this will automatically send the get-song-tags event to ipcManager
@@ -324,32 +351,69 @@ class ListWindow extends React.Component {
   }
 
   renderList() {
-    const { audiolist, selectedItem, searchTerm } = this.state;
+    const {
+      audiolist,
+      selectedItem,
+      searchTerm,
+      sortValue,
+    } = this.state;
 
     if (audiolist.length <= 0) {
       return <i id="list-ui-null" className="fas fa-list-ul" />;
     }
 
-    let filteredAudioList = audiolist;
+    let filteredAudioList;
 
     if (searchTerm.length > 0) {
-      filteredAudioList = audiolist.filter((item) => {
-        if (item.tags && item.tags.title) {
-          return item.tags.title.toLowerCase().includes(searchTerm.toLowerCase());
-        }
+      filteredAudioList = update(audiolist, {
+        $apply: (appl) => {
+          return appl.filter((item) => {
+            if (item.tags && item.tags.title) {
+              if (item.tags.title.toLowerCase().includes(searchTerm.toLowerCase())) return item;
+            }
 
-        return item.title.toLowerCase().includes(searchTerm.toLowerCase());
+            if (item.title.toLowerCase().includes(searchTerm.toLowerCase())) return item;
+          });
+        },
       });
     }
 
-    return filteredAudioList.map((item) => {
+    let sortedFilteredAudioList;
+
+    if (sortValue.length > 0) {
+      sortedFilteredAudioList = update((searchTerm.length > 0) ? filteredAudioList : audiolist, {
+        $apply: (appl) => {
+          return appl.concat().sort((a, b) => {
+            if (a[sortValue] < b[sortValue]) return -1;
+            if (a[sortValue] === b[sortValue]) return 0;
+            if (a[sortValue] > b[sortValue]) return 1;
+
+            return null;
+          });
+        },
+      });
+    }
+
+    function getProcessedList() {
+      if (searchTerm.length === 0 && sortValue.length === 0) {
+        return audiolist;
+      }
+
+      if (searchTerm.length > 0 && sortValue.length === 0) {
+        return filteredAudioList;
+      }
+
+      return sortedFilteredAudioList;
+    }
+
+    return getProcessedList().map((item) => {
       return (
         <List
           key={item.id}
           item={item}
           selectedItem={selectedItem}
           onClick={() => this.sendFile(item.id, item.filePath)}
-          deleteFunction={this.deleteSingleListItem}
+          deleteFunction={this.deleteSingleListFile}
         />
       );
     });
@@ -373,7 +437,7 @@ class ListWindow extends React.Component {
     return (
       <Modal
         className="wrapper-add-modal"
-        closeFunction={this.toggleAddModal}
+        closeFunction={() => this.toggleModal('add')}
       >
         <div className="add-modal">
           <div className="add-modal__button">
@@ -397,6 +461,38 @@ class ListWindow extends React.Component {
             >
               <span>Add file</span>
             </div>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
+  renderSortModal() {
+    const { isSortModalShow, sortValue } = this.state;
+
+    if (!isSortModalShow) return null;
+
+    const classNameSelected = 'item-wrapper__option__selector--on';
+
+    return (
+      <Modal
+        className="wrapper-sort-modal"
+        closeFunction={() => this.toggleModal('sort')}
+      >
+        <div className="item-wrapper">
+          <div
+            className="item-wrapper__option item-wrapper__option--default"
+            onClick={() => this.toggleSorter('default')}
+          >
+            <div className={`item-wrapper__option__selector ${(sortValue === '') ? classNameSelected : null}`} />
+            <span>default</span>
+          </div>
+          <div
+            className="item-wrapper__option item-wrapper__option--title"
+            onClick={() => this.toggleSorter('title')}
+          >
+            <div className={`item-wrapper__option__selector ${(sortValue === 'title') ? classNameSelected : null}`} />
+            <span>title</span>
           </div>
         </div>
       </Modal>
@@ -428,11 +524,17 @@ class ListWindow extends React.Component {
             className="button-list-clear"
           />
           <Touchable
-            onClick={this.toggleAddModal}
+            onClick={() => this.toggleModal('add')}
             icon="fas fa-plus"
             className="button-add-file"
           />
+          <Touchable
+            onClick={() => this.toggleModal('sort')}
+            icon="fas fa-sort"
+            className="button-sort-list"
+          />
           {this.renderAddModal()}
+          {this.renderSortModal()}
           <div className="list-description">
             {this.renderLoading()}
             <span className="list-description__size">{totalSize.toFixed(2)} MB</span>
