@@ -392,9 +392,20 @@ class ListWindow extends React.Component {
       sortedFilteredAudioList = update((searchTerm.length > 0) ? filteredAudioList : audiolist, {
         $apply: (appl) => {
           return appl.concat().sort((a, b) => {
-            if (a[sortValue] < b[sortValue]) return -1;
-            if (a[sortValue] === b[sortValue]) return 0;
-            if (a[sortValue] > b[sortValue]) return 1;
+            let titleA = a[sortValue];
+            let titleB = b[sortValue];
+
+            if (a.tags) {
+              if (a.tags.title) titleA = a.tags.title;
+            }
+
+            if (b.tags) {
+              if (b.tags.title) titleB = b.tags.title;
+            }
+
+            if (titleA < titleB) return -1;
+            if (titleA === titleB) return 0;
+            if (titleA > titleB) return 1;
 
             return null;
           });
