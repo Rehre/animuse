@@ -254,21 +254,29 @@ class ListWindow extends React.Component {
     }
 
     if (state === 'next') {
+      let itemtoSend = audiolist[0];
+
       if (currentIndex >= audiolist.length - 1) {
-        this.setState({ selectedItem: '' });
+        this.sendFile(itemtoSend.id, itemtoSend.filePath);
 
         return;
       }
 
-      const itemtoSend = audiolist[++currentIndex];
+      itemtoSend = audiolist[++currentIndex];
 
       this.sendFile(itemtoSend.id, itemtoSend.filePath);
     }
 
     if (state === 'previous') {
-      if (currentIndex <= 0) return;
+      let itemtoSend = audiolist[audiolist.length];
 
-      const itemtoSend = audiolist[--currentIndex];
+      if (currentIndex <= 0) {
+        this.sendFile(itemtoSend.id, itemtoSend.filePath);
+
+        return;
+      };
+
+      itemtoSend = audiolist[--currentIndex];
 
       this.sendFile(itemtoSend.id, itemtoSend.filePath);
     }
