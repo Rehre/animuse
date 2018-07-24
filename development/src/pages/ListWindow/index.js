@@ -265,6 +265,7 @@ class ListWindow extends React.Component {
         folder,
       },
     };
+
     // set the grouping
     ['folder'].forEach((key, index) => {
       if (!(newGroupListValues[index].includes(objectFile.group[key]))) {
@@ -329,45 +330,45 @@ class ListWindow extends React.Component {
       const index = Math.abs(Math.round(Math.random() * audiolist.length - 1));
       const itemToSend = audiolist[index];
 
-      this.sendFile(itemToSend.id, itemToSend.filePath);
+      this.sendFile(itemToSend.id, itemToSend);
     }
 
     if (state === 'loop-all-next') {
-      let [itemToSend] = audiolist;
+      let [itemToSend] = audiolist; // this will get the first item
 
       if (currentIndex < audiolist.length - 1) {
-        itemToSend = audiolist[++currentIndex];
+        itemToSend = audiolist[++currentIndex]; // this will change if currentindex < audiolist
       }
 
-      this.sendFile(itemToSend.id, itemToSend.filePath);
+      this.sendFile(itemToSend.id, itemToSend);
     }
 
     if (state === 'next') {
       let itemtoSend = audiolist[0];
 
       if (currentIndex >= audiolist.length - 1) {
-        this.sendFile(itemtoSend.id, itemtoSend.filePath);
+        this.sendFile(itemtoSend.id, itemtoSend);
 
         return;
       }
 
       itemtoSend = audiolist[++currentIndex];
 
-      this.sendFile(itemtoSend.id, itemtoSend.filePath);
+      this.sendFile(itemtoSend.id, itemtoSend);
     }
 
     if (state === 'previous') {
-      let itemtoSend = audiolist[audiolist.length];
+      let itemtoSend = audiolist[audiolist.length - 1];
 
       if (currentIndex <= 0) {
-        this.sendFile(itemtoSend.id, itemtoSend.filePath);
+        this.sendFile(itemtoSend.id, itemtoSend);
 
         return;
       }
 
       itemtoSend = audiolist[--currentIndex];
 
-      this.sendFile(itemtoSend.id, itemtoSend.filePath);
+      this.sendFile(itemtoSend.id, itemtoSend);
     }
   }
 
@@ -525,7 +526,7 @@ class ListWindow extends React.Component {
           key={item.id}
           item={item}
           selectedItem={selectedItem}
-          onClick={() => this.sendFile(item.id, item.filePath)}
+          onClick={() => this.sendFile(item.id, item)}
           deleteFunction={this.deleteSingleListFile}
         />
       );

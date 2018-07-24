@@ -3,7 +3,7 @@ const path = require('path');
 const WindowManager = require('../WindowManager');
 const openNotification = require('./openNotification');
 
-function sendFileToMainWin(err, fileObject, cb = () => {}) {
+function sendFileToMainWin(err, fileObject, cb = () => {}, isWait) {
   if (err) console.log(err);
 
   let songTitle = path.basename(fileObject.file);
@@ -18,7 +18,7 @@ function sendFileToMainWin(err, fileObject, cb = () => {}) {
 
   cb();
 
-  openNotification('Playing', songTitle);
+  if (!isWait) openNotification('Playing', songTitle);
 }
 
 module.exports = sendFileToMainWin;

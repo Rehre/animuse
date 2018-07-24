@@ -9,7 +9,6 @@ const mp3Duration = require('mp3-duration');
 
 const openMP3 = require('./utils/openMP3');
 const searchMP3 = require('./utils/searchMP3');
-const getMediaTags = require('./utils/getMediaTags');
 const sendFileToMainWin = require('./utils/sendFileToMainWin');
 const WindowManager = require('./WindowManager');
 // duration for asyncFunction to run
@@ -17,6 +16,7 @@ let tagRunDuration = 0;
 let timeRunDuration = 0;
 
 let waitedAsyncFunction = []; // save all the async function in here
+let waitedOpenMP3Function;
 
 // when file is opened using app
 ipcMain.on('get-opening-file', () => {
@@ -48,7 +48,7 @@ ipcMain.on('open-file', (event, arg) => {
 
   openMP3(file[0], (err, fileObject) => {
     if (arg === 'add') {
-      event.sender.send('add-file-to-list', { filePath: fileObject.file });
+      event.sender.send('add-file-to-list', { filePath: fileObject.file, isTagged: false });
     } else {
       sendFileToMainWin(err, fileObject);
     }
@@ -68,7 +68,7 @@ ipcMain.on('open-folder', (event, arg) => {
   timeRunDuration = 0; // same goes for this
 
   searchMP3(directory[0], (file) => {
-    event.sender.send('add-file-to-list', { filePath: file });
+    event.sender.send('add-file-to-list', { filePath: file, isTagged: false });
   });
 });
 // use this to open a listWindow
@@ -83,7 +83,22 @@ ipcMain.on('open-window', (event, arg) => {
 });
 // use this to send file or play specific music to mainWindow
 ipcMain.on('send-file', (event, arg) => {
-  openMP3(arg, sendFileToMainWin);
+  clearTimeout(waitedOpenMP3Function);
+
+  const cacheFilePath = path.join(__dirname, 'cache/cache.json');
+  const cacheFile = JSON.parse(fs.readFileSync(cacheFilePath, { encoding: 'utf8' }));
+
+  const fileToSendFirst = { file: arg.filePath };
+  // if arg is already tagged
+  if (arg.tags.album || arg.isTagged) {
+    fileToSendFirst.pictureData = cacheFile.thumbnailData[encodeURI(arg.tags.album)];
+  }
+
+  sendFileToMainWin(null, Object.assign({}, fileToSendFirst, arg));
+  // if arg is not tagged
+  if (!(arg.isTagged)) {
+    waitedOpenMP3Function = setTimeout(() => openMP3(arg.filePath, sendFileToMainWin), 1000);
+  }
 });
 // use this to send the change event(next or previous or random or loop-all-next) to list window
 ipcMain.on('change-player-song', (event, arg) => {
@@ -104,7 +119,7 @@ ipcMain.on('get-song-tags', (event, audioFile) => {
 
   const id = `${filePath.substr(filePath.lastIndexOf('\\')) + Math.floor(Math.random() * 10000)}tags`;
   const tagFunc = setTimeout(() => {
-    getMediaTags(filePath, (err, data) => {
+    openMP3(filePath, (err, data) => {
       const currentIndex = waitedAsyncFunction.findIndex(item => item.id === id);
       // if this function is run eventhough the waitedAsyncFunction is cleared then return;
       if (currentIndex < 0) return;
