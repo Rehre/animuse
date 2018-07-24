@@ -17,15 +17,17 @@ function openMP3(file, callback) {
 
   jsmediatags.read(data, {
     onSuccess: (tag) => {
-      let pictureData = tag.tags.picture;
+      let pictureData = tag.tags.picture || 'not found';
       let alreadyCachedAlbumPic = false;
+
+      if (tag.tags.album === undefined) tag.tags.album = 'unknown album';
 
       if (cacheFile.thumbnailData[encodeURI(tag.tags.album)]) {
         pictureData = cacheFile.thumbnailData[encodeURI(tag.tags.album)];
         alreadyCachedAlbumPic = true;
       }
 
-      if (pictureData && !alreadyCachedAlbumPic) {
+      if (pictureData !== 'not found' && !alreadyCachedAlbumPic) {
         const id = Date.now();
 
         let namePic = path.join(__dirname, '../', `/cache/img/${id}.jpeg`);
@@ -64,7 +66,7 @@ function openMP3(file, callback) {
 
       callback(null, objectData);
 
-      if (!alreadyCachedAlbumPic) {
+      if (pictureData !== 'not found' && !alreadyCachedAlbumPic) {
         cacheFile.thumbnailData[encodeURI(objectData.tags.album)] = pictureData;
 
         fs.writeFileSync(cacheFilePath, JSON.stringify(cacheFile));
@@ -75,6 +77,7 @@ function openMP3(file, callback) {
     onError: (error) => {
       callback(error, {
         file,
+        pictureData: 'not found',
         filePath: file,
         errorTag: false,
         size,

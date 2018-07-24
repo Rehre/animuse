@@ -16,7 +16,7 @@ class MainWindow extends React.Component {
     this.state = {
       file: '',
       title: 'title',
-      pictureData: undefined,
+      pictureData: 'not found',
     };
 
     this.title = React.createRef();
@@ -116,7 +116,7 @@ class MainWindow extends React.Component {
   renderImageThumbnail() {
     const { pictureData } = this.state;
 
-    if (pictureData) {
+    if (pictureData !== 'not found') {
       return (
         <div
           id="thumbnail-img"
@@ -137,13 +137,13 @@ class MainWindow extends React.Component {
       <div>
         <h2
           ref={this.title}
-          className={(pictureData) ? 'title title--white' : 'title'}
+          className={(pictureData !== 'not found') ? 'title title--white' : 'title'}
         >
           {title}
         </h2>
         <h2
           ref={this.title2}
-          className={(pictureData) ? 'title2 title--white' : 'title2'}
+          className={(pictureData !== 'not found') ? 'title2 title--white' : 'title2'}
         >
           {title}
         </h2>
@@ -156,7 +156,7 @@ class MainWindow extends React.Component {
 
     let className = 'button-config';
 
-    if (pictureData) {
+    if (pictureData !== 'not found') {
       className += ' button-config--white';
     }
 

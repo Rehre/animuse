@@ -90,13 +90,20 @@ ipcMain.on('send-file', (event, arg) => {
 
   const fileToSendFirst = { file: arg.filePath };
   // if arg is already tagged
-  if (arg.tags.album || arg.isTagged) {
-    fileToSendFirst.pictureData = cacheFile.thumbnailData[encodeURI(arg.tags.album)];
+  let runThumbnailGetter = false;
+  if (arg.isTagged && arg.tags.album) {
+    // if the not found item is getting called
+    if (!(cacheFile.thumbnailData[encodeURI(arg.tags.album)]) && arg.pictureData !== 'not found') {
+      // run the new thumbnailgetter if the pictureData is already set before but different
+      runThumbnailGetter = true;
+    }
+
+    arg.pictureData = cacheFile.thumbnailData[encodeURI(arg.tags.album)] || 'not found';
   }
 
   sendFileToMainWin(null, Object.assign({}, fileToSendFirst, arg));
   // if arg is not tagged
-  if (!(arg.isTagged)) {
+  if (!(arg.isTagged) || runThumbnailGetter) {
     waitedOpenMP3Function = setTimeout(() => openMP3(arg.filePath, sendFileToMainWin), 1000);
   }
 });

@@ -444,7 +444,7 @@ class ListWindow extends React.Component {
       <div className="head">
         <Touchable
           onClick={() => this.toggleModal('group')}
-          icon="fas fa-sort"
+          icon="fas fa-object-group"
           className="button-group-list"
         />
         <span># {selectedIndex + 1} / {audiolist.length}</span>
