@@ -153,7 +153,7 @@ class ListWindow extends React.Component {
         newGroupList[key] = newGroupListValues[index];
       });
       // run tag updater
-      if (!(item.errorTag) && (!(item.size) || !(item.tags) || !(item.duration))) {
+      if (!(item.errorTag) && (!(item.isTagged) || !(item.duration))) {
         ipcRenderer.send('get-song-tags', item);
       }
     });
@@ -291,7 +291,11 @@ class ListWindow extends React.Component {
     const currentIndex = newAudioList.findIndex(item => item.id === file.id);
 
     newAudioList[currentIndex] = Object.assign({}, newAudioList[currentIndex], file);
-    const newTotalSize = (currentIndex > -1) ? totalSize + file.size : totalSize;
+    let newTotalSize = totalSize;
+    // if the updatetags run for the second time for getting the duration
+    if (currentIndex > -1 && !(audiolist[currentIndex].size)) {
+      newTotalSize = totalSize + file.size;
+    }
 
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
     localStorage.setItem('music-total-size', JSON.stringify(newTotalSize));
@@ -311,7 +315,11 @@ class ListWindow extends React.Component {
       newAudioList[currentIndex],
       { duration: file.duration });
 
-    const newTotalTime = (currentIndex > -1) ? totalTime + file.duration : totalTime;
+    let newTotalTime = totalTime;
+    // if the updatetags run for the second time for getting the duration
+    if (currentIndex > -1 && !(audiolist[currentIndex].duration)) {
+      newTotalTime = totalTime + file.duration;
+    }
 
     localStorage.setItem('music-list', JSON.stringify(newAudioList));
     localStorage.setItem('music-total-time', JSON.stringify(newTotalTime));

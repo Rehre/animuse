@@ -49,6 +49,8 @@ class List extends React.Component {
 
       if (item.tags.album) {
         albumHeader = item.tags.album;
+
+        if (albumHeader.includes('thisconfuseme')) albumHeader = 'unknown album';
       }
     }
 

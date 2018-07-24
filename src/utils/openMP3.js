@@ -20,7 +20,20 @@ function openMP3(file, callback) {
       let pictureData = tag.tags.picture || 'not found';
       let alreadyCachedAlbumPic = false;
 
-      if (tag.tags.album === undefined) tag.tags.album = 'unknown album';
+      if (tag.tags.album === undefined && pictureData !== 'not found') {
+        let albumWord = 'thisconfuseme';
+        // check if the there is file with same album like this
+        const cacheFilekeys = Object.keys(cacheFile.thumbnailData);
+        // change it according to number
+        let found = 0;
+        cacheFilekeys.forEach((item) => {
+          if (item === albumWord) found += 1;
+
+          albumWord = `${albumWord} ${found}`;
+        });
+
+        tag.tags.album = albumWord;
+      }
 
       if (cacheFile.thumbnailData[encodeURI(tag.tags.album)]) {
         pictureData = cacheFile.thumbnailData[encodeURI(tag.tags.album)];
@@ -32,6 +45,8 @@ function openMP3(file, callback) {
 
         let namePic = path.join(__dirname, '../', `/cache/img/${id}.jpeg`);
         let dataArray = jpeg.decode(pictureData.data);
+
+        // replace the \\ because string is not escaped when sending to renderer
         namePic = namePic.replace(/\\/g, '\\\\');
 
         let rawImageData = {
@@ -41,10 +56,15 @@ function openMP3(file, callback) {
         };
 
         let dataImage = jpeg.encode(rawImageData, 50);
-
+        // save image
         fs.writeFileSync(namePic, dataImage.data);
 
+        // clean memory
         pictureData = namePic;
+        // save to cache
+        cacheFile.thumbnailData[encodeURI(tag.tags.album)] = pictureData;
+        fs.writeFileSync(cacheFilePath, JSON.stringify(cacheFile));
+
         dataImage = null;
         dataArray = null;
         rawImageData = null;
@@ -65,12 +85,6 @@ function openMP3(file, callback) {
       };
 
       callback(null, objectData);
-
-      if (pictureData !== 'not found' && !alreadyCachedAlbumPic) {
-        cacheFile.thumbnailData[encodeURI(objectData.tags.album)] = pictureData;
-
-        fs.writeFileSync(cacheFilePath, JSON.stringify(cacheFile));
-      }
 
       tag = null;
     },
