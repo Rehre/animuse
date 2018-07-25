@@ -22,6 +22,7 @@ let waitedOpenMP3Function;
 ipcMain.on('get-opening-file', () => {
   const data = process.argv[1];
 
+  if (!data) return;
   if (!(data.length > 1)) return;
 
   openMP3(data, sendFileToMainWin);
