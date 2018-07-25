@@ -8,19 +8,16 @@ const sendFileToMainWin = require('./utils/sendFileToMainWin');
 require('./IpcManager');
 
 let argvPlayed;
+// when the launched song ended clear the argv
+ipcMain.on('song-ended', () => argvPlayed = undefined);
 
-ipcMain.on('song-ended', () => argvPlayed = undefined); // when clicked song ended clear the argv
-
-const cacheFolderPath = `${app.getAppPath()}/cache/img/`;
+const cacheFolderPath = `${app.getPath('userData')}\\user-cache\\img\\`;
 
 // if didnt exist create the cache folder in AppPath
-fs.readdir(cacheFolderPath, (err) => {
-  if (err) {
-    fs.mkdirSync(`${app.getAppPath()}/cache/`);
-    fs.mkdirSync(cacheFolderPath);
-  };
-});
-
+if (!(fs.existsSync(cacheFolderPath))) {
+  fs.mkdirSync(`${app.getPath('userData')}\\user-cache\\`);
+  fs.mkdirSync(cacheFolderPath);
+}
 
 const shouldQuit = app.makeSingleInstance((argv) => {
   // if user tryng to run the seconds instance of app

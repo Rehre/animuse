@@ -86,8 +86,17 @@ ipcMain.on('open-window', (event, arg) => {
 ipcMain.on('send-file', (event, arg) => {
   clearTimeout(waitedOpenMP3Function);
 
-  const cacheFilePath = path.join(__dirname, 'cache/cache.json');
+  const cacheFilePath = path.join(__dirname, 'cache.json');
   const cacheFile = JSON.parse(fs.readFileSync(cacheFilePath, { encoding: 'utf8' }));
+
+  const cacheFolderPath = `${app.getPath('userData')}\\user-cache\\img\\`;
+  let shouldIUpdate = false;
+  // if didnt exist create the cache folder in AppPath
+  if (!(fs.existsSync(cacheFolderPath))) {
+    shouldIUpdate = true;
+    fs.mkdirSync(`${app.getPath('userData')}\\user-cache\\`);
+    fs.mkdirSync(cacheFolderPath);
+  }
 
   const fileToSendFirst = { file: arg.filePath };
   // if arg is already tagged
@@ -99,13 +108,20 @@ ipcMain.on('send-file', (event, arg) => {
       runThumbnailGetter = true;
     }
 
+    // if thumbnail file is deleted
+    if (!(fs.existsSync(cacheFile.thumbnailData[encodeURI(arg.tags.album)]))) shouldIUpdate = true;
+    // if cache folder and file is deleted
+    if (shouldIUpdate) runThumbnailGetter = true;
+
     arg.pictureData = cacheFile.thumbnailData[encodeURI(arg.tags.album)] || 'not found';
   }
 
   sendFileToMainWin(null, Object.assign({}, fileToSendFirst, arg));
   // if arg is not tagged
   if (!(arg.isTagged) || runThumbnailGetter) {
-    waitedOpenMP3Function = setTimeout(() => openMP3(arg.filePath, sendFileToMainWin), 1000);
+    waitedOpenMP3Function = setTimeout(() => {
+      openMP3(arg.filePath, sendFileToMainWin, shouldIUpdate);
+    }, 1000);
   }
 });
 // use this to send the change event(next or previous or random or loop-all-next) to list window

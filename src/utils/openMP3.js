@@ -1,15 +1,27 @@
+const { app } = require('electron');
 const fs = require('fs');
 const jsmediatags = require('jsmediatags');
 const jpeg = require('jpeg-js');
 const path = require('path');
 
-function openMP3(file, callback) {
+function openMP3(file, callback, breaktrough) {
   let data = fs.readFileSync(file);
 
   if (!data) callback('error', null);
 
-  const cacheFilePath = path.join(__dirname, '../', '/cache/cache.json');
+  const cacheFilePath = path.join(__dirname, '../', 'cache.json');
   const cacheFile = JSON.parse(fs.readFileSync(cacheFilePath, { encoding: 'utf8' }));
+
+  const cacheFolderPath = `${app.getPath('userData')}\\user-cache\\img\\`;
+  let shouldIUpdate = false;
+  // if didnt exist create the cache folder in AppPath
+  if (!(fs.existsSync(cacheFolderPath))) {
+    shouldIUpdate = true;
+    fs.mkdirSync(`${app.getPath('userData')}\\user-cache\\`);
+    fs.mkdirSync(cacheFolderPath);
+  }
+
+  if (breaktrough) shouldIUpdate = true;
 
   // get the file size
   const stats = fs.statSync(file);
@@ -19,7 +31,7 @@ function openMP3(file, callback) {
     onSuccess: (tag) => {
       let pictureData = tag.tags.picture || 'not found';
       let alreadyCachedAlbumPic = false;
-
+      // if has the thumbnail but no album
       if (tag.tags.album === undefined && pictureData !== 'not found') {
         let albumWord = 'thisconfuseme';
         // check if the there is file with same album like this
@@ -35,19 +47,24 @@ function openMP3(file, callback) {
         tag.tags.album = albumWord;
       }
 
-      if (cacheFile.thumbnailData[encodeURI(tag.tags.album)]) {
-        pictureData = cacheFile.thumbnailData[encodeURI(tag.tags.album)];
-        alreadyCachedAlbumPic = true;
+      if (!shouldIUpdate && cacheFile.thumbnailData[encodeURI(tag.tags.album)]) {
+        // if thumbnail file is deleted
+        if (!(fs.existsSync(cacheFile.thumbnailData[encodeURI(tag.tags.album)]))) {
+          shouldIUpdate = true;
+        } else {
+          pictureData = cacheFile.thumbnailData[encodeURI(tag.tags.album)];
+          alreadyCachedAlbumPic = true;
+        }
       }
 
-      if (pictureData !== 'not found' && !alreadyCachedAlbumPic) {
+      if ((pictureData !== 'not found' && !alreadyCachedAlbumPic) || shouldIUpdate) {
         const id = Date.now();
-
-        let namePic = path.join(__dirname, '../', `/cache/img/${id}.jpeg`);
+        let namePic = path.join(cacheFolderPath, `${id}.jpeg`);
         let dataArray = jpeg.decode(pictureData.data);
 
-        // replace the \\ because string is not escaped when sending to renderer
+        // add the quote to namePic so the path will be readed by app and escape the slash
         namePic = namePic.replace(/\\/g, '\\\\');
+        namePic = `"${namePic}"`;
 
         let rawImageData = {
           data: dataArray.data,
@@ -57,7 +74,7 @@ function openMP3(file, callback) {
 
         let dataImage = jpeg.encode(rawImageData, 50);
         // save image
-        fs.writeFileSync(namePic, dataImage.data);
+        fs.writeFileSync(path.join(cacheFolderPath, `${id}.jpeg`), dataImage.data);
 
         // clean memory
         pictureData = namePic;
