@@ -1,23 +1,16 @@
 const { app, ipcMain } = require('electron');
-const fs = require('fs');
 
 const WindowManager = require('./WindowManager');
 const openMP3 = require('./utils/openMP3');
 const sendFileToMainWin = require('./utils/sendFileToMainWin');
-
+const checkForSettingFile = require('./utils/checkForSettingFiles');
 require('./IpcManager');
 
 let argvPlayed;
 // when the launched song ended clear the argv
 ipcMain.on('song-ended', () => argvPlayed = undefined);
 
-const cacheFolderPath = `${app.getPath('userData')}\\user-cache\\img\\`;
-
-// if didnt exist create the cache folder in AppPath
-if (!(fs.existsSync(cacheFolderPath))) {
-  fs.mkdirSync(`${app.getPath('userData')}\\user-cache\\`);
-  fs.mkdirSync(cacheFolderPath);
-}
+checkForSettingFile();
 
 const shouldQuit = app.makeSingleInstance((argv) => {
   // if user tryng to run the seconds instance of app

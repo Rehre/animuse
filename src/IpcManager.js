@@ -9,6 +9,7 @@ const mp3Duration = require('mp3-duration');
 
 const openMP3 = require('./utils/openMP3');
 const searchMP3 = require('./utils/searchMP3');
+const checkForSettingFiles = require('./utils/checkForSettingFiles');
 const sendFileToMainWin = require('./utils/sendFileToMainWin');
 const WindowManager = require('./WindowManager');
 // duration for asyncFunction to run
@@ -85,18 +86,11 @@ ipcMain.on('open-window', (event, arg) => {
 // use this to send file or play specific music to mainWindow
 ipcMain.on('send-file', (event, arg) => {
   clearTimeout(waitedOpenMP3Function);
+  // should i update the tag ?
+  let shouldIUpdate = checkForSettingFiles();
 
-  const cacheFilePath = path.join(__dirname, 'cache.json');
+  const cacheFilePath = path.join(app.getPath('userData'), 'user-data', 'cache.json');
   const cacheFile = JSON.parse(fs.readFileSync(cacheFilePath, { encoding: 'utf8' }));
-
-  const cacheFolderPath = `${app.getPath('userData')}\\user-cache\\img\\`;
-  let shouldIUpdate = false;
-  // if didnt exist create the cache folder in AppPath
-  if (!(fs.existsSync(cacheFolderPath))) {
-    shouldIUpdate = true;
-    fs.mkdirSync(`${app.getPath('userData')}\\user-cache\\`);
-    fs.mkdirSync(cacheFolderPath);
-  }
 
   const fileToSendFirst = { file: arg.filePath };
   // if arg is already tagged
@@ -110,7 +104,7 @@ ipcMain.on('send-file', (event, arg) => {
 
     // if thumbnail file is deleted
     if (!(fs.existsSync(cacheFile.thumbnailData[encodeURI(arg.tags.album)]))) shouldIUpdate = true;
-    // if cache folder and file is deleted
+    // if cache folder or file is deleted run the thumbnail getter
     if (shouldIUpdate) runThumbnailGetter = true;
 
     arg.pictureData = cacheFile.thumbnailData[encodeURI(arg.tags.album)] || 'not found';
@@ -120,7 +114,9 @@ ipcMain.on('send-file', (event, arg) => {
   // if arg is not tagged
   if (!(arg.isTagged) || runThumbnailGetter) {
     waitedOpenMP3Function = setTimeout(() => {
-      openMP3(arg.filePath, sendFileToMainWin, shouldIUpdate);
+      openMP3(arg.filePath, (err, data) => {
+        sendFileToMainWin(err, data, () => {}, true);
+      }, shouldIUpdate);
     }, 1000);
   }
 });
@@ -182,14 +178,20 @@ ipcMain.on('get-song-duration', (event, audioFile) => {
 });
 // get the user setting and send to SettingWindow
 ipcMain.on('get-setting', (event) => {
-  const settings = fs.readFileSync(path.join(__dirname, 'userSetting.json'), { encoding: 'utf8' });
+  checkForSettingFiles();
+
+  const userSettingsPath = path.join(app.getPath('userData'), 'user-data', 'userSetting.json');
+
+  const settings = fs.readFileSync(userSettingsPath, { encoding: 'utf8' });
   const settingsObject = JSON.parse(settings);
 
   event.sender.send('sended-setting', settingsObject);
 });
 // change setting in userSetting.json
 ipcMain.on('change-setting', (event, arg) => {
-  const userSettingsPath = path.join(__dirname, 'userSetting.json');
+  checkForSettingFiles();
+
+  const userSettingsPath = path.join(app.getPath('userData'), 'user-data', 'userSetting.json');
 
   const settings = fs.readFileSync(userSettingsPath, { encoding: 'utf8' });
   const settingsObject = JSON.parse(settings);

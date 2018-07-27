@@ -4,23 +4,20 @@ const jsmediatags = require('jsmediatags');
 const jpeg = require('jpeg-js');
 const path = require('path');
 
+const checkForSettingFiles = require('../utils/checkForSettingFiles');
+
 function openMP3(file, callback, breaktrough) {
   let data = fs.readFileSync(file);
 
   if (!data) callback('error', null);
+  // should i update the tag ?
+  let shouldIUpdate = checkForSettingFiles();
 
-  const cacheFilePath = path.join(__dirname, '../', 'cache.json');
+  const cacheFilePath = path.join(app.getPath('userData'), 'user-data', 'cache.json');
   const cacheFile = JSON.parse(fs.readFileSync(cacheFilePath, { encoding: 'utf8' }));
+  const cacheIMGFolderPath = `${app.getPath('userData')}\\user-cache\\img\\`;
 
-  const cacheFolderPath = `${app.getPath('userData')}\\user-cache\\img\\`;
-  let shouldIUpdate = false;
-  // if didnt exist create the cache folder in AppPath
-  if (!(fs.existsSync(cacheFolderPath))) {
-    shouldIUpdate = true;
-    fs.mkdirSync(`${app.getPath('userData')}\\user-cache\\`);
-    fs.mkdirSync(cacheFolderPath);
-  }
-
+  // force update the cache img
   if (breaktrough) shouldIUpdate = true;
 
   // get the file size
@@ -58,13 +55,12 @@ function openMP3(file, callback, breaktrough) {
       }
 
       if ((pictureData !== 'not found' && !alreadyCachedAlbumPic) || shouldIUpdate) {
-        const id = Date.now();
-        let namePic = path.join(cacheFolderPath, `${id}.jpeg`);
+        const id = Date.now(); // image id
+        let namePic = path.join(cacheIMGFolderPath, `${id}.jpeg`);
         let dataArray = jpeg.decode(pictureData.data);
 
         // add the quote to namePic so the path will be readed by app and escape the slash
         namePic = namePic.replace(/\\/g, '\\\\');
-        namePic = `"${namePic}"`;
 
         let rawImageData = {
           data: dataArray.data,
@@ -74,7 +70,7 @@ function openMP3(file, callback, breaktrough) {
 
         let dataImage = jpeg.encode(rawImageData, 50);
         // save image
-        fs.writeFileSync(path.join(cacheFolderPath, `${id}.jpeg`), dataImage.data);
+        fs.writeFileSync(path.join(cacheIMGFolderPath, `${id}.jpeg`), dataImage.data);
 
         // clean memory
         pictureData = namePic;
