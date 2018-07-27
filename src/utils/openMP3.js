@@ -43,7 +43,7 @@ function openMP3(file, callback, breaktrough) {
 
         tag.tags.album = albumWord;
       }
-
+      // if shouldIUpdate is false and thumbnail file is cached
       if (!shouldIUpdate && cacheFile.thumbnailData[encodeURI(tag.tags.album)]) {
         // if thumbnail file is deleted
         if (!(fs.existsSync(cacheFile.thumbnailData[encodeURI(tag.tags.album)]))) {
@@ -54,7 +54,7 @@ function openMP3(file, callback, breaktrough) {
         }
       }
 
-      if ((pictureData !== 'not found' && !alreadyCachedAlbumPic) || shouldIUpdate) {
+      if ((pictureData !== 'not found' && !alreadyCachedAlbumPic) || (pictureData !== 'not found' && shouldIUpdate)) {
         const id = Date.now(); // image id
         let namePic = path.join(cacheIMGFolderPath, `${id}.jpeg`);
         let dataArray = jpeg.decode(pictureData.data);

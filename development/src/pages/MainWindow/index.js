@@ -45,7 +45,7 @@ class MainWindow extends React.Component {
       this.setState({
         file: arg.file,
         title,
-        pictureData: `"${arg.pictureData}"`, // this will add escaping quote
+        pictureData: (arg.pictureData === 'not found') ? arg.pictureData : `"${arg.pictureData}"`, // this will add escaping quote
       });
     });
   }

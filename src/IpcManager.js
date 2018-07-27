@@ -105,7 +105,7 @@ ipcMain.on('send-file', (event, arg) => {
     // if thumbnail file is deleted
     if (!(fs.existsSync(cacheFile.thumbnailData[encodeURI(arg.tags.album)]))) shouldIUpdate = true;
     // if cache folder or file is deleted run the thumbnail getter
-    if (shouldIUpdate) runThumbnailGetter = true;
+    if (shouldIUpdate && arg.pictureData !== 'not found') runThumbnailGetter = true;
 
     arg.pictureData = cacheFile.thumbnailData[encodeURI(arg.tags.album)] || 'not found';
   }
