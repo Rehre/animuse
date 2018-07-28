@@ -1,0 +1,32 @@
+.ListGroup__button {
+    height: 40px;
+    position: relative;
+    background-color: #EEEEEE;
+    border-bottom: 1px solid silver;
+}
+
+.ListGroup__button:hover {
+    cursor: pointer;
+}
+
+.ListGroup__button__icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    margin-top: -6px;
+    color: black;
+}
+
+.ListGroup__button__title {
+    position: absolute;
+    left: 35px;
+    top: 50%;
+    margin-top: -10px;
+}
+
+.ListGroup__button__length {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    margin-top: -10px;
+}

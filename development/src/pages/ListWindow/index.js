@@ -8,6 +8,7 @@ import HeaderTitle from '../../common/HeaderTitle';
 import Modal from '../../common/Modal';
 
 import List from './components/List';
+import ListGroup from './components/ListGroup';
 
 const { ipcRenderer, remote } = window.require('electron');
 
@@ -35,6 +36,7 @@ class ListWindow extends React.Component {
 
     this.toggleModal = this.toggleModal.bind(this);
     this.toggleSorter = this.toggleSorter.bind(this);
+    this.toggleGroupBy = this.toggleGroupBy.bind(this);
     this.runStorageChecker = this.runStorageChecker.bind(this);
     this.runTagUpdater = this.runTagUpdater.bind(this);
     this.deleteSingleListFile = this.deleteSingleListFile.bind(this);
@@ -48,10 +50,12 @@ class ListWindow extends React.Component {
     this.renderSearchBar = this.renderSearchBar.bind(this);
     this.renderHead = this.renderHead.bind(this);
     this.renderList = this.renderList.bind(this);
+    this.renderListByGroup = this.renderListByGroup.bind(this);
     this.renderLoading = this.renderLoading.bind(this);
     this.renderAddModal = this.renderAddModal.bind(this);
     this.renderSortModal = this.renderSortModal.bind(this);
     this.renderGroupByModal = this.renderGroupByModal.bind(this);
+    this.renderedList = this.renderedList.bind(this);
   }
 
   componentDidMount() {
@@ -116,17 +120,25 @@ class ListWindow extends React.Component {
     }
   }
 
+  toggleGroupBy(value) {
+    localStorage.setItem('group-value', value);
+
+    this.setState({ groupByValue: value });
+  }
+
   runStorageChecker() {
     const audiolist = JSON.parse(localStorage.getItem('music-list')) || [];
     const totalSize = JSON.parse(localStorage.getItem('music-total-size')) || 0;
     const totalTime = JSON.parse(localStorage.getItem('music-total-time')) || 0;
     const sortValue = localStorage.getItem('sort-value') || '';
+    const groupByValue = localStorage.getItem('group-value') || '';
 
     this.setState({
       audiolist,
       totalSize,
       totalTime,
       sortValue,
+      groupByValue,
     }, this.runTagUpdater);
   }
 
@@ -541,6 +553,31 @@ class ListWindow extends React.Component {
     });
   }
 
+  renderListByGroup() {
+    const {
+      audiolist,
+      selectedItem,
+      groupByValue,
+      grouplist,
+      sortValue,
+    } = this.state;
+
+    return grouplist[groupByValue].map((item, index) => {
+      return (
+        <ListGroup
+          key={index}
+          audiolist={audiolist}
+          selectedItem={selectedItem}
+          groupValue={groupByValue}
+          listValue={item}
+          sortValue={sortValue}
+          deleteSingleListFile={this.deleteSingleListFile}
+          sendFile={this.sendFile}
+        />
+      );
+    });
+  }
+
   renderLoading() {
     const { isLoadingShow } = this.state;
 
@@ -638,7 +675,7 @@ class ListWindow extends React.Component {
           <h3 className="item-wrapper__title">Group By</h3>
           <div
             className="item-wrapper__option item-wrapper__option--default"
-            onClick={() => this.toggleGroupBy('default')}
+            onClick={() => this.toggleGroupBy('')}
           >
             <div className={`item-wrapper__option__selector ${(groupByValue === '') ? classNameSelected : null}`} />
             <span>default</span>
@@ -655,9 +692,21 @@ class ListWindow extends React.Component {
     );
   }
 
+  renderedList() {
+    const {
+      searchTerm,
+      groupByValue,
+    } = this.state;
+
+    if (searchTerm.length <= 0 && groupByValue.length > 0) {
+      return this.renderListByGroup();
+    }
+
+    return this.renderList();
+  }
+
   render() {
     const { totalSize } = this.state;
-
     return (
       <div className="ListWindow">
         <HeaderTitle
@@ -667,7 +716,7 @@ class ListWindow extends React.Component {
         {this.renderHead()}
         {this.renderGroupByModal()}
         <div className="content">
-          {this.renderList()}
+          {this.renderedList()}
         </div>
         <div className="footer">
           <Touchable

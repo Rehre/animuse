@@ -28,59 +28,62 @@ function openMP3(file, callback, breaktrough) {
     onSuccess: (tag) => {
       let pictureData = tag.tags.picture || 'not found';
       let alreadyCachedAlbumPic = false;
-      // if has the thumbnail but no album
-      if (tag.tags.album === undefined && pictureData !== 'not found') {
-        let albumWord = 'thisconfuseme';
-        // check if the there is file with same album like this
-        const cacheFilekeys = Object.keys(cacheFile.thumbnailData);
-        // change it according to number
-        let found = 0;
-        cacheFilekeys.forEach((item) => {
-          if (item === albumWord) found += 1;
 
-          albumWord = `${albumWord} ${found}`;
-        });
+      if (tag.tags) {
+        // if has the thumbnail but no album
+        if (tag.tags.album === undefined && pictureData !== 'not found') {
+          let albumWord = 'thisconfuseme';
+          // check if the there is file with same album like this
+          const cacheFilekeys = Object.keys(cacheFile.thumbnailData);
+          // change it according to number
+          let found = 0;
+          cacheFilekeys.forEach((item) => {
+            if (item === albumWord) found += 1;
 
-        tag.tags.album = albumWord;
-      }
-      // if shouldIUpdate is false and thumbnail file is cached
-      if (!shouldIUpdate && cacheFile.thumbnailData[encodeURI(tag.tags.album)]) {
-        // if thumbnail file is deleted
-        if (!(fs.existsSync(cacheFile.thumbnailData[encodeURI(tag.tags.album)]))) {
-          shouldIUpdate = true;
-        } else {
-          pictureData = cacheFile.thumbnailData[encodeURI(tag.tags.album)];
-          alreadyCachedAlbumPic = true;
+            albumWord = `${albumWord} ${found}`;
+          });
+
+          tag.tags.album = albumWord;
         }
-      }
+        // if shouldIUpdate is false and thumbnail file is cached
+        if (!shouldIUpdate && cacheFile.thumbnailData[encodeURI(tag.tags.album)]) {
+          // if thumbnail file is deleted
+          if (!(fs.existsSync(cacheFile.thumbnailData[encodeURI(tag.tags.album)]))) {
+            shouldIUpdate = true;
+          } else {
+            pictureData = cacheFile.thumbnailData[encodeURI(tag.tags.album)];
+            alreadyCachedAlbumPic = true;
+          }
+        }
 
-      if ((pictureData !== 'not found' && !alreadyCachedAlbumPic) || (pictureData !== 'not found' && shouldIUpdate)) {
-        const id = Date.now(); // image id
-        let namePic = path.join(cacheIMGFolderPath, `${id}.jpeg`);
-        let dataArray = jpeg.decode(pictureData.data);
+        if ((pictureData !== 'not found' && !alreadyCachedAlbumPic) || (pictureData !== 'not found' && shouldIUpdate)) {
+          const id = Date.now(); // image id
+          let namePic = path.join(cacheIMGFolderPath, `${id}.jpeg`);
+          let dataArray = jpeg.decode(pictureData.data);
 
-        // add the quote to namePic so the path will be readed by app and escape the slash
-        namePic = namePic.replace(/\\/g, '\\\\');
+          // add the quote to namePic so the path will be readed by app and escape the slash
+          namePic = namePic.replace(/\\/g, '\\\\');
 
-        let rawImageData = {
-          data: dataArray.data,
-          width: dataArray.width,
-          height: dataArray.height,
-        };
+          let rawImageData = {
+            data: dataArray.data,
+            width: dataArray.width,
+            height: dataArray.height,
+          };
 
-        let dataImage = jpeg.encode(rawImageData, 50);
-        // save image
-        fs.writeFileSync(path.join(cacheIMGFolderPath, `${id}.jpeg`), dataImage.data);
+          let dataImage = jpeg.encode(rawImageData, 50);
+          // save image
+          fs.writeFileSync(path.join(cacheIMGFolderPath, `${id}.jpeg`), dataImage.data);
 
-        // clean memory
-        pictureData = namePic;
-        // save to cache
-        cacheFile.thumbnailData[encodeURI(tag.tags.album)] = pictureData;
-        fs.writeFileSync(cacheFilePath, JSON.stringify(cacheFile));
+          // clean memory
+          pictureData = namePic;
+          // save to cache
+          cacheFile.thumbnailData[encodeURI(tag.tags.album)] = pictureData;
+          fs.writeFileSync(cacheFilePath, JSON.stringify(cacheFile));
 
-        dataImage = null;
-        dataArray = null;
-        rawImageData = null;
+          dataImage = null;
+          dataArray = null;
+          rawImageData = null;
+        }
       }
 
       const objectData = {
@@ -89,9 +92,9 @@ function openMP3(file, callback, breaktrough) {
         size,
         pictureData,
         tags: {
-          title: tag.tags.title,
-          album: tag.tags.album,
-          artist: tag.tags.artist,
+          title: tag.tags.title || undefined,
+          album: tag.tags.album || undefined,
+          artist: tag.tags.artist || undefined,
         },
         errorTag: false,
         isTagged: true,

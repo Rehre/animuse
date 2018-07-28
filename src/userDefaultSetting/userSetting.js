@@ -1,7 +1,7 @@
 module.exports = {
   notification: true,
-  textColor: 'white',
+  textColor: '#FFFFFF',
   iconHoverColor: '#E05A50',
-  defaultTextColor: 'white',
+  defaultTextColor: '#FFFFFF',
   defaultIconHoverColor: '#E05A50',
 };

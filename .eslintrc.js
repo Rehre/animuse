@@ -19,5 +19,6 @@ module.exports = {
         "consistent-return": "warn",
         "no-useless-return": "warn",
         "array-callback-return": "warn",
+        "react/no-array-index-key": "warn",
     }
 };
