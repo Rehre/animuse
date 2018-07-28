@@ -95,7 +95,7 @@ ipcMain.on('send-file', (event, arg) => {
   const fileToSendFirst = { file: arg.filePath };
   // if arg is already tagged
   let runThumbnailGetter = false;
-  if (arg.isTagged && arg.tags.album) {
+  if (arg.isTagged && (arg.tags && arg.tags.album)) {
     // if the not found item is getting called
     if (!(cacheFile.thumbnailData[encodeURI(arg.tags.album)]) && arg.pictureData !== 'not found') {
       // run the new thumbnailgetter if the pictureData is already set before but different
