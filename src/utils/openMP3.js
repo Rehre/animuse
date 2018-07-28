@@ -1,7 +1,8 @@
 const { app } = require('electron');
 const fs = require('fs');
-const jsmediatags = require('jsmediatags');
 const jpeg = require('jpeg-js');
+const jsmediatags = require('jsmediatags');
+
 const path = require('path');
 
 const checkForSettingFiles = require('../utils/checkForSettingFiles');
@@ -58,21 +59,39 @@ function openMP3(file, callback, breaktrough) {
 
         if ((pictureData !== 'not found' && !alreadyCachedAlbumPic) || (pictureData !== 'not found' && shouldIUpdate)) {
           const id = Date.now(); // image id
-          let namePic = path.join(cacheIMGFolderPath, `${id}.jpeg`);
-          let dataArray = jpeg.decode(pictureData.data);
+          const isPNG = pictureData.format.toLowerCase().includes('png');
+          const imgFormat = (isPNG) ? '.png' : '.jpeg';
 
+          let namePic = path.join(cacheIMGFolderPath, `${id}${imgFormat}`);
+          let dataArray;
+          let rawImageData;
+          let dataImage;
+
+          try {
+            if (!isPNG) {
+              dataArray = jpeg.decode(pictureData.data);
+
+              rawImageData = {
+                data: dataArray.data,
+                width: dataArray.width,
+                height: dataArray.height,
+              };
+
+              dataImage = jpeg.encode(rawImageData, 50);
+              // save image
+              fs.writeFileSync(path.join(cacheIMGFolderPath, `${id}.jpeg`), dataImage.data);
+            } else {
+              const buffer = Buffer.alloc(pictureData.data.length);
+
+              pictureData.data.forEach((item, index) => buffer[index] = item);
+
+              fs.writeFileSync(path.join(cacheIMGFolderPath, `${id}.png`), buffer);
+            }
+          } catch (e) {
+            namePic = 'not found';
+          }
           // add the quote to namePic so the path will be readed by app and escape the slash
           namePic = namePic.replace(/\\/g, '\\\\');
-
-          let rawImageData = {
-            data: dataArray.data,
-            width: dataArray.width,
-            height: dataArray.height,
-          };
-
-          let dataImage = jpeg.encode(rawImageData, 50);
-          // save image
-          fs.writeFileSync(path.join(cacheIMGFolderPath, `${id}.jpeg`), dataImage.data);
 
           // clean memory
           pictureData = namePic;
