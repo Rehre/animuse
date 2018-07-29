@@ -1,5 +1,4 @@
 import React from 'react';
-import update from 'immutability-helper';
 import PropTypes from 'prop-types';
 
 import './styles/ListGroup.css';
@@ -31,7 +30,6 @@ class ListGroup extends React.Component {
       selectedItem,
       groupValue,
       listValue,
-      sortValue,
       deleteSingleListFile,
       sendFile,
     } = this.props;
@@ -40,53 +38,20 @@ class ListGroup extends React.Component {
       return <i id="list-ui-null" className="fas fa-list-ul" />;
     }
 
-    const filteredAudioList = audiolist.filter(item => item.group[groupValue] === listValue);
-
-    let sortedFilteredAudioList;
-
-    if (sortValue.length > 0) {
-      sortedFilteredAudioList = update(filteredAudioList, {
-        $apply: (appl) => {
-          return appl.concat().sort((a, b) => {
-            let titleA = a[sortValue];
-            let titleB = b[sortValue];
-
-            if (a.tags) {
-              if (a.tags.title) titleA = a.tags.title;
-            }
-
-            if (b.tags) {
-              if (b.tags.title) titleB = b.tags.title;
-            }
-
-            if (titleA < titleB) return -1;
-            if (titleA === titleB) return 0;
-            if (titleA > titleB) return 1;
-
-            return null;
-          });
-        },
-      });
-    }
-
-    function getProcessedList() {
-      if (sortValue.length > 0) {
-        return sortedFilteredAudioList;
+    return audiolist.map((item) => {
+      if (item.group[groupValue] === listValue) {
+        return (
+          <List
+            key={item.id}
+            item={item}
+            selectedItem={selectedItem}
+            onClick={() => sendFile(item.id, item)}
+            deleteFunction={deleteSingleListFile}
+          />
+        );
       }
 
-      return filteredAudioList;
-    }
-
-    return getProcessedList().map((item) => {
-      return (
-        <List
-          key={item.id}
-          item={item}
-          selectedItem={selectedItem}
-          onClick={() => sendFile(item.id, item)}
-          deleteFunction={deleteSingleListFile}
-        />
-      );
+      return null;
     });
   }
 
@@ -135,7 +100,6 @@ ListGroup.propTypes = {
   selectedItem: PropTypes.string.isRequired,
   groupValue: PropTypes.string.isRequired,
   listValue: PropTypes.string.isRequired,
-  sortValue: PropTypes.string.isRequired,
   deleteSingleListFile: PropTypes.func.isRequired,
   sendFile: PropTypes.func.isRequired,
 };
