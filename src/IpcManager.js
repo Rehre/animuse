@@ -96,7 +96,9 @@ ipcMain.on('send-file', (event, arg) => {
   // if arg is already tagged
   let runThumbnailGetter = false;
   if (arg.isTagged && (arg.tags && arg.tags.album)) {
-    // if the not found item is getting called
+    // if the already cached file thumbnailData is undefined in cache setting
+    // and not the "not found" item
+    // run new ThumbnailGetter
     if (!(cacheFile.thumbnailData[encodeURI(arg.tags.album)]) && arg.pictureData !== 'not found') {
       // run the new thumbnailgetter if the pictureData is already set before but different
       runThumbnailGetter = true;

@@ -73,7 +73,7 @@ position: relative;
     top: 20px;
     padding: 0x;
     width: 250px !important;
-    overflow-x: auto;
+    overflow-x: hidden;
     height: 99%;
     white-space: pre;
     font-weight: 200;

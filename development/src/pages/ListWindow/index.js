@@ -556,8 +556,8 @@ class ListWindow extends React.Component {
       });
     }
 
-    let sortedFilteredAudioList;
-    if (sortValue.length > 0) {
+    let sortedFilteredAudioList = filteredAudioList || audiolist;
+    if (sortValue.length > 0 && this.needToSort) {
       sortedFilteredAudioList = update((searchTerm.length > 0) ? filteredAudioList : audiolist, {
         $apply: (appl) => {
           return appl.sort((a, b) => {
@@ -580,6 +580,8 @@ class ListWindow extends React.Component {
           });
         },
       });
+
+      this.needToSort = false;
     }
 
     function getProcessedList() {
