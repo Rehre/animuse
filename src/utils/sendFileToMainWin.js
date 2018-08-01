@@ -17,7 +17,7 @@ function sendFileToMainWin(err, fileObject, cb = () => {}, isWait) {
   WindowManager.mainWindow.webContents.send('opened-file', fileObject);
 
   cb();
-
+  // should we show notification ?
   if (!isWait) openNotification('Playing', songTitle);
 }
 

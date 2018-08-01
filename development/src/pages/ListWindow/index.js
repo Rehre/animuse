@@ -18,6 +18,8 @@ class ListWindow extends React.Component {
 
     this.state = {
       audiolist: [],
+      playlist: [],
+      currentPlaylist: '',
       grouplist: {
         folder: [],
       },
@@ -134,16 +136,18 @@ class ListWindow extends React.Component {
   }
 
   runStorageChecker() {
-    const audiolist = JSON.parse(localStorage.getItem('music-list')) || [];
-    const totalSize = JSON.parse(localStorage.getItem('music-total-size')) || 0;
-    const totalTime = JSON.parse(localStorage.getItem('music-total-time')) || 0;
+    let audiolist = JSON.parse(localStorage.getItem('music-list')) || [];
+    const playlist = JSON.parse(localStorage.getItem('playlist')) || ['default'];
+    const currentPlaylist = JSON.parse(localStorage.getItem('current-playlist')) || 'default';
     const sortValue = localStorage.getItem('sort-value') || '';
     const groupByValue = localStorage.getItem('group-value') || '';
 
+    audiolist = audiolist.filter(item => item.playlist.includes(currentPlaylist));
+
     this.setState({
       audiolist,
-      totalSize,
-      totalTime,
+      playlist,
+      currentPlaylist,
       sortValue,
       groupByValue,
     }, this.runTagUpdater);
@@ -158,8 +162,17 @@ class ListWindow extends React.Component {
     const newGroupList = {};
     const newGroupListKeys = Object.keys(grouplist);
     const newGroupListValues = Object.values(grouplist);
+    let totalTime = 0;
+    let totalSize = 0;
 
     audiolist.forEach((item) => {
+      if (item.duration !== undefined) {
+        totalTime += item.duration;
+      }
+
+      if (item.size !== undefined) {
+        totalSize += item.size;
+      }
       // get the file grouping item
       newGroupListKeys.forEach((key, index) => {
         if (!(item.group)) return;
@@ -178,7 +191,7 @@ class ListWindow extends React.Component {
       }
     });
 
-    this.setState({ grouplist: newGroupList });
+    this.setState({ grouplist: newGroupList, totalTime, totalSize });
   }
 
   openFolder(arg) {
@@ -222,9 +235,6 @@ class ListWindow extends React.Component {
       newTotalSize = (currentItem.size !== undefined) ? totalSize - currentItem.size : totalSize;
     }
 
-    localStorage.setItem('music-total-time', JSON.stringify(newTotalTime));
-    localStorage.setItem('music-total-size', JSON.stringify(newTotalSize));
-
     // delete item from audiolist
     const newAudioList = audiolist.filter(item => item.id !== id);
 
@@ -259,14 +269,28 @@ class ListWindow extends React.Component {
   }
 
   clearList() {
-    localStorage.removeItem('music-list');
-    localStorage.removeItem('music-total-size');
-    localStorage.removeItem('music-total-time');
+    const { audiolist, currentPlaylist } = this.state;
     // cancel all the asynchronous function in ipcManager
     ipcRenderer.send('cancel-all-async-function');
 
+    const copy = JSON.parse(localStorage.getItem('music-list')) || [];
+    let filteredList = audiolist.filter(item => item.playlist.includes(currentPlaylist));
+
+    filteredList.forEach((item) => {
+      const currentIndex = copy.findIndex(itemX => item.id === itemX.id);
+      const itemModified = copy[currentIndex];
+
+      const playlistIndex = itemModified.playlist.findIndex(itemX => itemX === currentPlaylist);
+      itemModified.playlist.splice(playlistIndex, 1);
+
+      if (itemModified.playlist.length <= 0) copy.splice(currentIndex, 1);
+    });
+
+    localStorage.setItem('music-list', copy);
+    filteredList = null; // clean memory
+
     this.setState({
-      audiolist: [],
+      audiolist: copy,
       grouplist: {
         folder: [],
       },
@@ -278,11 +302,16 @@ class ListWindow extends React.Component {
 
   // this will automatically send the get-song-tags event to ipcManager
   listenToFile(file) {
-    const { audiolist, grouplist, sortValue } = this.state;
+    const {
+      audiolist,
+      grouplist,
+      sortValue,
+      currentPlaylist,
+    } = this.state;
     const newAudioList = [...audiolist];
     const newGroupList = {};
     const newGroupListValues = Object.values(grouplist);
-
+    // get the folder name for grouping
     const id = file.filePath.substring(file.filePath.length, file.filePath.lastIndexOf('\\') + 1) + Math.floor(Math.random() * 1000) + Math.floor(Math.random() * 1000);
     const title = file.filePath.substring(file.filePath.length, file.filePath.lastIndexOf('\\') + 1);
     const regex = file.filePath.match(/\\.+?\\/g);
@@ -296,6 +325,7 @@ class ListWindow extends React.Component {
       group: {
         folder,
       },
+      playlist: [currentPlaylist],
     };
 
     // set the grouping
@@ -308,7 +338,8 @@ class ListWindow extends React.Component {
     });
 
     newAudioList.push(objectFile);
-
+    // if sort is active save the file to localstorage directly
+    // dont save it in local audiolist
     if (sortValue.length > 0) {
       let arrTemp = JSON.parse(localStorage.getItem('music-list')) || [];
       this.needToSort = true;
@@ -334,7 +365,9 @@ class ListWindow extends React.Component {
 
     newAudioList[currentIndex] = Object.assign({}, newAudioList[currentIndex], file);
     let newTotalSize = totalSize;
-    // if the updatetags run for the second time for getting the duration
+    // if the updatetags run for the second size for getting the duration then dont run this
+    // it will cause the size to be added twice to this item
+    // and also if item is deleted then dont run this too
     if (currentIndex > -1 && !(audiolist[currentIndex].size)) {
       newTotalSize = totalSize + file.size;
     }
@@ -350,8 +383,6 @@ class ListWindow extends React.Component {
     } else {
       localStorage.setItem('music-list', JSON.stringify(newAudioList));
     }
-
-    localStorage.setItem('music-total-size', JSON.stringify(newTotalSize));
 
     this.setState({ audiolist: newAudioList, totalSize: newTotalSize }, () => {
       ipcRenderer.send('get-song-duration', file);
@@ -369,7 +400,9 @@ class ListWindow extends React.Component {
       { duration: file.duration });
 
     let newTotalTime = totalTime;
-    // if the updatetags run for the second time for getting the duration
+    // if the updatetags run for the second time for getting the duration then dont run this
+    // it will cause the time to be added twice to this item
+    // and also if item is deleted then dont run this too
     if (currentIndex > -1 && !(audiolist[currentIndex].duration)) {
       newTotalTime = totalTime + file.duration;
     }
@@ -388,8 +421,6 @@ class ListWindow extends React.Component {
     } else {
       localStorage.setItem('music-list', JSON.stringify(newAudioList));
     }
-
-    localStorage.setItem('music-total-time', JSON.stringify(newTotalTime));
 
     this.setState({ audiolist: newAudioList, totalTime: newTotalTime });
   }
@@ -555,7 +586,8 @@ class ListWindow extends React.Component {
         },
       });
     }
-
+    // only sort if this.needToSort is on
+    // so this function will not always sort everytime the list item clicked
     let sortedFilteredAudioList = filteredAudioList || audiolist;
     if (sortValue.length > 0 && this.needToSort) {
       sortedFilteredAudioList = update((searchTerm.length > 0) ? filteredAudioList : audiolist, {
@@ -618,11 +650,13 @@ class ListWindow extends React.Component {
     } = this.state;
 
     const { audiolist } = this.state;
-
+    // only sort if this.needToSort is on
+    // so this function will not always sort everytime the list item clicked
     if (sortValue.length > 0 && this.needToSort) {
       grouplist[groupByValue].forEach((item) => {
+        // get the item that match this grouping value
         let list = audiolist.filter(itemX => itemX.group[groupByValue] === item);
-
+        // sort the matched item
         list.sort((a, b) => {
           let titleA = a[sortValue];
           let titleB = b[sortValue];
@@ -641,7 +675,8 @@ class ListWindow extends React.Component {
 
           return null;
         });
-
+        // forEach item in list we find it index in audiolist and remove it from audiolist
+        // and then push the item into audiolist
         list.forEach((itemX) => {
           const currentIndex = audiolist.findIndex(itemY => itemY.id === itemX.id);
 
