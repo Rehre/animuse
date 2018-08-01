@@ -9,6 +9,7 @@ import Modal from '../../common/Modal';
 
 import List from './components/List';
 import ListGroup from './components/ListGroup';
+import PlaylistModal from './components/PlaylistModal';
 
 const { ipcRenderer, remote } = window.require('electron');
 
@@ -34,6 +35,7 @@ class ListWindow extends React.Component {
       isAddModalShow: false,
       isSortModalShow: false,
       isGroupByModalShow: false,
+      isPlaylistModalShow: false,
     };
 
     this.needToSort = false;
@@ -43,6 +45,8 @@ class ListWindow extends React.Component {
     this.toggleGroupBy = this.toggleGroupBy.bind(this);
     this.runStorageChecker = this.runStorageChecker.bind(this);
     this.runTagUpdater = this.runTagUpdater.bind(this);
+    this.addPlaylist = this.addPlaylist.bind(this);
+    this.changePlaylist = this.changePlaylist.bind(this);
     this.deleteSingleListFile = this.deleteSingleListFile.bind(this);
     this.clearList = this.clearList.bind(this);
     this.listenToFile = this.listenToFile.bind(this);
@@ -59,6 +63,7 @@ class ListWindow extends React.Component {
     this.renderAddModal = this.renderAddModal.bind(this);
     this.renderSortModal = this.renderSortModal.bind(this);
     this.renderGroupByModal = this.renderGroupByModal.bind(this);
+    this.renderPlaylistModal = this.renderPlaylistModal.bind(this);
     this.renderedList = this.renderedList.bind(this);
   }
 
@@ -105,11 +110,17 @@ class ListWindow extends React.Component {
   }
 
   toggleModal(modal) {
-    const { isAddModalShow, isSortModalShow, isGroupByModalShow } = this.state;
+    const {
+      isAddModalShow,
+      isSortModalShow,
+      isGroupByModalShow,
+      isPlaylistModalShow,
+    } = this.state;
 
     if (modal === 'add') this.setState({ isAddModalShow: !isAddModalShow });
     if (modal === 'sort') this.setState({ isSortModalShow: !isSortModalShow });
     if (modal === 'group') this.setState({ isGroupByModalShow: !isGroupByModalShow });
+    if (modal === 'playlist') this.setState({ isPlaylistModalShow: !isPlaylistModalShow });
   }
 
   toggleSorter(value) {
@@ -136,13 +147,29 @@ class ListWindow extends React.Component {
   }
 
   runStorageChecker() {
+    const defaultPlaylist = {
+      id: Date.now(),
+      title: 'default',
+    };
+
     let audiolist = JSON.parse(localStorage.getItem('music-list')) || [];
-    const playlist = JSON.parse(localStorage.getItem('playlist')) || ['default'];
-    const currentPlaylist = JSON.parse(localStorage.getItem('current-playlist')) || 'default';
+    const playlist = JSON.parse(localStorage.getItem('playlist')) || [defaultPlaylist];
+    const currentPlaylist = JSON.parse(localStorage.getItem('current-playlist')) || defaultPlaylist;
     const sortValue = localStorage.getItem('sort-value') || '';
     const groupByValue = localStorage.getItem('group-value') || '';
 
-    audiolist = audiolist.filter(item => item.playlist.includes(currentPlaylist));
+    if (!(JSON.parse(localStorage.getItem('playlist')))) {
+      localStorage.setItem('playlist', JSON.stringify(playlist));
+      localStorage.setItem('current-playlist', JSON.stringify(currentPlaylist));
+    }
+
+    audiolist = audiolist.filter((item) => {
+      if (item.playlist.some(itemX => itemX.id === currentPlaylist.id)) {
+        return true;
+      }
+
+      return false;
+    });
 
     this.setState({
       audiolist,
@@ -203,8 +230,44 @@ class ListWindow extends React.Component {
     ipcRenderer.send('open-folder');
   }
 
+  addPlaylist(value) {
+    const { playlist } = this.state;
+    const id = Date.now();
+    const newPlaylist = [...playlist];
+    if (value.trim().length <= 0) return;
+
+    newPlaylist.push({
+      id,
+      title: value,
+    });
+    localStorage.setItem('playlist', JSON.stringify(newPlaylist));
+
+    this.setState({ playlist: newPlaylist });
+  }
+
   addSingleFile() {
     ipcRenderer.send('open-file', 'add');
+  }
+
+  changePlaylist(id) {
+    const { playlist } = this.state;
+
+    const item = playlist.find(itemX => itemX.id === id);
+    localStorage.setItem('current-playlist', JSON.stringify(item));
+
+    this.setState({ currentPlaylist: item }, () => {
+      let audiolist = JSON.parse(localStorage.getItem('music-list')) || [];
+
+      audiolist = audiolist.filter((itemY) => {
+        if (itemY.playlist.some(itemX => itemX.id === id)) {
+          return true;
+        }
+
+        return false;
+      });
+
+      this.setState({ audiolist });
+    });
   }
 
   deleteSingleListFile(id) {
@@ -213,7 +276,6 @@ class ListWindow extends React.Component {
       totalTime,
       totalSize,
       grouplist,
-      sortValue,
     } = this.state;
 
     const currentItem = audiolist.find(item => item.id === id);
@@ -249,16 +311,13 @@ class ListWindow extends React.Component {
 
     newGroupList.folder = newGroupListValues[0];
 
-    if (sortValue.length > 0) {
-      let arrTemp = JSON.parse(localStorage.getItem('music-list')) || [];
-      this.needToSort = true;
+    let arrTemp = JSON.parse(localStorage.getItem('music-list')) || [];
+    this.needToSort = true;
 
-      arrTemp = arrTemp.filter(item => item.id !== id);
-      localStorage.setItem('music-list', JSON.stringify(arrTemp));
-      arrTemp = []; // clean memory
-    } else {
-      localStorage.setItem('music-list', JSON.stringify(newAudioList));
-    }
+    arrTemp = arrTemp.filter(item => item.id !== id);
+    localStorage.setItem('music-list', JSON.stringify(arrTemp));
+    arrTemp = []; // clean memory
+
 
     this.setState({
       audiolist: newAudioList,
@@ -273,21 +332,35 @@ class ListWindow extends React.Component {
     // cancel all the asynchronous function in ipcManager
     ipcRenderer.send('cancel-all-async-function');
 
-    const copy = JSON.parse(localStorage.getItem('music-list')) || [];
-    let filteredList = audiolist.filter(item => item.playlist.includes(currentPlaylist));
+    let copy = JSON.parse(localStorage.getItem('music-list')) || [];
+    let filteredList = audiolist.filter((item) => {
+      if (item.playlist.some(itemX => itemX.id === currentPlaylist.id)) {
+        return true;
+      }
+
+      return false;
+    });
 
     filteredList.forEach((item) => {
       const currentIndex = copy.findIndex(itemX => item.id === itemX.id);
-      const itemModified = copy[currentIndex];
+      const itemModify = copy[currentIndex];
 
-      const playlistIndex = itemModified.playlist.findIndex(itemX => itemX === currentPlaylist);
-      itemModified.playlist.splice(playlistIndex, 1);
+      const playlistIndex = itemModify.playlist.findIndex(itemX => itemX.id === currentPlaylist.id);
+      itemModify.playlist.splice(playlistIndex, 1);
 
-      if (itemModified.playlist.length <= 0) copy.splice(currentIndex, 1);
+      if (itemModify.playlist.length <= 0) copy.splice(currentIndex, 1);
     });
 
-    localStorage.setItem('music-list', copy);
+    localStorage.setItem('music-list', JSON.stringify(copy));
     filteredList = null; // clean memory
+
+    copy = copy.filter((item) => {
+      if (item.playlist.some(itemX => itemX.id === currentPlaylist.id)) {
+        return true;
+      }
+
+      return false;
+    });
 
     this.setState({
       audiolist: copy,
@@ -305,7 +378,6 @@ class ListWindow extends React.Component {
     const {
       audiolist,
       grouplist,
-      sortValue,
       currentPlaylist,
     } = this.state;
     const newAudioList = [...audiolist];
@@ -338,18 +410,13 @@ class ListWindow extends React.Component {
     });
 
     newAudioList.push(objectFile);
-    // if sort is active save the file to localstorage directly
-    // dont save it in local audiolist
-    if (sortValue.length > 0) {
-      let arrTemp = JSON.parse(localStorage.getItem('music-list')) || [];
-      this.needToSort = true;
 
-      arrTemp.push(objectFile);
-      localStorage.setItem('music-list', JSON.stringify(arrTemp));
-      arrTemp = []; // clean memory
-    } else {
-      localStorage.setItem('music-list', JSON.stringify(newAudioList));
-    }
+    let arrTemp = JSON.parse(localStorage.getItem('music-list')) || [];
+    this.needToSort = true;
+
+    arrTemp.push(objectFile);
+    localStorage.setItem('music-list', JSON.stringify(arrTemp));
+    arrTemp = []; // clean memory
 
     this.setState({ audiolist: newAudioList, grouplist: newGroupList }, () => {
       ipcRenderer.send('get-song-tags', objectFile);
@@ -358,7 +425,7 @@ class ListWindow extends React.Component {
 
   // this will automatically send the get-song-duration event to ipcManager
   updateTags(file) {
-    const { audiolist, totalSize, sortValue } = this.state;
+    const { audiolist, totalSize } = this.state;
 
     const newAudioList = [...audiolist];
     const currentIndex = newAudioList.findIndex(item => item.id === file.id);
@@ -372,17 +439,14 @@ class ListWindow extends React.Component {
       newTotalSize = totalSize + file.size;
     }
 
-    if (sortValue.length > 0) {
-      let arrTemp = JSON.parse(localStorage.getItem('music-list')) || [];
-      this.needToSort = true;
+    let arrTemp = JSON.parse(localStorage.getItem('music-list')) || [];
+    this.needToSort = true;
 
-      const currentIndexA = arrTemp.findIndex(item => item.id === file.id);
-      arrTemp[currentIndexA] = Object.assign({}, arrTemp[currentIndexA], file);
-      localStorage.setItem('music-list', JSON.stringify(arrTemp));
-      arrTemp = []; // clean memory
-    } else {
-      localStorage.setItem('music-list', JSON.stringify(newAudioList));
-    }
+    const currentIndexA = arrTemp.findIndex(item => item.id === file.id);
+    arrTemp[currentIndexA] = Object.assign({}, arrTemp[currentIndexA], file);
+    localStorage.setItem('music-list', JSON.stringify(arrTemp));
+    arrTemp = []; // clean memory
+
 
     this.setState({ audiolist: newAudioList, totalSize: newTotalSize }, () => {
       ipcRenderer.send('get-song-duration', file);
@@ -390,7 +454,7 @@ class ListWindow extends React.Component {
   }
 
   updateDuration(file) {
-    const { audiolist, totalTime, sortValue } = this.state;
+    const { audiolist, totalTime } = this.state;
     const newAudioList = [...audiolist];
 
     const currentIndex = newAudioList.findIndex(item => item.id === file.id);
@@ -407,20 +471,17 @@ class ListWindow extends React.Component {
       newTotalTime = totalTime + file.duration;
     }
 
-    if (sortValue.length > 0) {
-      let arrTemp = JSON.parse(localStorage.getItem('music-list')) || [];
-      this.needToSort = true;
+    let arrTemp = JSON.parse(localStorage.getItem('music-list')) || [];
+    this.needToSort = true;
 
-      const currentIndexA = arrTemp.findIndex(item => item.id === file.id);
-      arrTemp[currentIndexA] = Object.assign({},
-        arrTemp[currentIndexA],
-        { duration: file.duration });
+    const currentIndexA = arrTemp.findIndex(item => item.id === file.id);
+    arrTemp[currentIndexA] = Object.assign({},
+      arrTemp[currentIndexA],
+      { duration: file.duration });
 
-      localStorage.setItem('music-list', JSON.stringify(arrTemp));
-      arrTemp = []; // clean memory
-    } else {
-      localStorage.setItem('music-list', JSON.stringify(newAudioList));
-    }
+    localStorage.setItem('music-list', JSON.stringify(arrTemp));
+    arrTemp = []; // clean memory
+
 
     this.setState({ audiolist: newAudioList, totalTime: newTotalTime });
   }
@@ -820,6 +881,26 @@ class ListWindow extends React.Component {
     );
   }
 
+  renderPlaylistModal() {
+    const {
+      isPlaylistModalShow,
+      playlist,
+      currentPlaylist,
+    } = this.state;
+
+    if (!isPlaylistModalShow) return null;
+
+    return (
+      <PlaylistModal
+        closeFunction={() => this.toggleModal('playlist')}
+        playlist={playlist}
+        currentPlaylist={currentPlaylist}
+        addPlaylist={this.addPlaylist}
+        changePlaylist={this.changePlaylist}
+      />
+    );
+  }
+
   renderedList() {
     const {
       searchTerm,
@@ -867,8 +948,14 @@ class ListWindow extends React.Component {
             icon="fas fa-sort"
             className="button-sort-list"
           />
+          <Touchable
+            onClick={() => this.toggleModal('playlist')}
+            icon="fas fa-list-alt"
+            className="button-playlist"
+          />
           {this.renderAddModal()}
           {this.renderSortModal()}
+          {this.renderPlaylistModal()}
           <div className="list-description">
             {this.renderLoading()}
             <span className="list-description__size">{totalSize.toFixed(2)} MB</span>

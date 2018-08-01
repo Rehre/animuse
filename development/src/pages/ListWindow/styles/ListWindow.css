@@ -121,6 +121,12 @@
     left: 113px;
 }
 
+.button-playlist {
+    position: absolute;
+    bottom: 15px;
+    left: 140px;
+}
+
 .button-group-list {
     position: absolute;
     bottom: 7px;

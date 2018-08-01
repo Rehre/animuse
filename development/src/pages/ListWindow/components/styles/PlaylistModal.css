@@ -1,0 +1,77 @@
+.playlist__container {
+    overflow-y: auto;
+    margin-top: 50px;
+    height: 140px;
+    width: 100%;
+    padding-bottom: 10px;
+}
+
+.playlist__container h2 {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+}
+
+.playlist__list__container {
+    position: relative;
+    margin-top: 0px;
+    height: 100%;
+    width: 100%;
+}
+
+.playlist__list__item {
+    position: relative;
+    padding: 5px;
+    padding-left: 25px;
+}
+
+.playlist__list__item:hover {
+    background-color: var(--icon-hover-color);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.playlist__list__item span {
+    margin-left: 15px;
+}
+
+.playlist__list__item .selector {
+    border: 1px solid #FFFFFF;
+    border-radius: 100px;
+    width: 5px;
+    height: 5px;
+    top: 50%;
+    position: absolute;
+    margin-top: -2.5px;
+    display: inline-block;
+}
+
+.playlist__list__item .selector--active {
+    background-color: white;
+}
+
+.playlist-adder {
+  padding-left: 10px;
+}
+
+.playlist-adder__input {
+    border: none;
+    outline: none;
+    background: transparent;
+    border-bottom: 1px solid #FFFFFF;
+    color: #FFFFFF;
+    padding: 2px;
+}
+
+.button-adder-playlist-cancel, .button-adder-playlist-confirm { 
+    position: absolute;
+}
+
+.button-adder-playlist-cancel, .button-adder-playlist-confirm {
+    right: 35px;
+    display: inline;
+}
+
+.button-adder-playlist-confirm {
+    right: 10px;
+}
