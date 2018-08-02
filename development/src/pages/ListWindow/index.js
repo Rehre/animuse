@@ -46,6 +46,7 @@ class ListWindow extends React.Component {
     this.runStorageChecker = this.runStorageChecker.bind(this);
     this.runTagUpdater = this.runTagUpdater.bind(this);
     this.addPlaylist = this.addPlaylist.bind(this);
+    this.deletePlaylist = this.deletePlaylist.bind(this);
     this.changePlaylist = this.changePlaylist.bind(this);
     this.deleteSingleListFile = this.deleteSingleListFile.bind(this);
     this.clearList = this.clearList.bind(this);
@@ -124,9 +125,20 @@ class ListWindow extends React.Component {
   }
 
   toggleSorter(value) {
+    const { currentPlaylist } = this.state;
+
     if (value === 'default') {
-      const copy = JSON.parse(localStorage.getItem('music-list')) || [];
+      let copy = JSON.parse(localStorage.getItem('music-list')) || [];
       localStorage.setItem('sort-value', '');
+
+      copy = copy.filter((item) => {
+        if (item.playlist.some(itemX => itemX.id === currentPlaylist.id)) {
+          return true;
+        }
+
+        return false;
+      });
+
       this.setState({ sortValue: '', audiolist: copy }, () => {
         this.needToSort = true;
       });
@@ -251,6 +263,7 @@ class ListWindow extends React.Component {
 
   changePlaylist(id) {
     const { playlist } = this.state;
+    ipcRenderer.send('cancel-all-async-function');
 
     const item = playlist.find(itemX => itemX.id === id);
     localStorage.setItem('current-playlist', JSON.stringify(item));
@@ -266,8 +279,64 @@ class ListWindow extends React.Component {
         return false;
       });
 
-      this.setState({ audiolist });
+      this.setState({
+        audiolist,
+        totalTime: 0,
+        totalSize: 0,
+      }, this.runTagUpdater);
     });
+  }
+
+  deletePlaylist(id) {
+    const { playlist } = this.state;
+
+    const newPlaylist = [...playlist];
+    // delete the playlist from local playlist
+    const deletedIndex = newPlaylist.findIndex(item => item.id === id);
+    newPlaylist.splice(deletedIndex, 1);
+    // get the copy of audiolist
+    const audiolistCopy = JSON.parse(localStorage.getItem('music-list')) || [];
+    // get the item in audiolist that has this playlist
+    const filteredAudiolistCopy = audiolistCopy.filter((item) => {
+      if (item.playlist.some(itemX => itemX.id === id)) return true;
+
+      return false;
+    });
+    // foreach item in filtered
+    // get the index of item in audiolistcopy
+    // delete the playlist in item
+    // if the playlist in item is equal to 0, delete it !
+    filteredAudiolistCopy.forEach((item) => {
+      const currentItemIndex = audiolistCopy.findIndex(itemX => itemX.id === item.id);
+      const itemToModify = audiolistCopy[currentItemIndex];
+
+      const playlistIndex = itemToModify.playlist.findIndex(itemX => itemX.id === id);
+      itemToModify.playlist.splice(playlistIndex, 1);
+
+      if (itemToModify.playlist.length <= 0) audiolistCopy.splice(currentItemIndex, 1);
+    });
+    // save the modified audiolistcopy to localstorage
+    localStorage.setItem('music-list', JSON.stringify(audiolistCopy));
+    // get the current playlist
+    // if the deleted playlist is in index 0 the give playlist of index 0
+    // else give the before index of -1
+    let currentPlaylist = (deletedIndex - 1 <= -1) ? newPlaylist[0] : newPlaylist[deletedIndex - 1];
+    // if newPlaylist is already empty then add default playlist
+    // and set current to 0
+    if (newPlaylist.length <= 0) { 
+      newPlaylist.push({
+        id: Date.now(),
+        title: 'default',
+      });
+
+      currentPlaylist = newPlaylist[0];
+    }
+    // save the playlist
+    localStorage.setItem('playlist', JSON.stringify(newPlaylist));
+    // update the state and change the current playlist with currentPlaylist
+    this.setState({
+      playlist: newPlaylist,
+    }, () => this.changePlaylist(currentPlaylist.id));
   }
 
   deleteSingleListFile(id) {
@@ -711,6 +780,10 @@ class ListWindow extends React.Component {
     } = this.state;
 
     const { audiolist } = this.state;
+
+    if (audiolist.length <= 0) {
+      return <i id="list-ui-null" className="fas fa-list-ul" />;
+    }
     // only sort if this.needToSort is on
     // so this function will not always sort everytime the list item clicked
     if (sortValue.length > 0 && this.needToSort) {
@@ -897,6 +970,7 @@ class ListWindow extends React.Component {
         currentPlaylist={currentPlaylist}
         addPlaylist={this.addPlaylist}
         changePlaylist={this.changePlaylist}
+        deletePlaylist={this.deletePlaylist}
       />
     );
   }

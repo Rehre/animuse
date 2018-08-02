@@ -13,6 +13,7 @@ class PlaylistModal extends React.Component {
       isConfirmModalShow: false,
       isTextAdderShow: false,
       textInput: '',
+      willBeDeletedPlaylist: '',
     };
 
     this.toggleModal = this.toggleModal.bind(this);
@@ -21,10 +22,18 @@ class PlaylistModal extends React.Component {
     this.renderPlaylist = this.renderPlaylist.bind(this);
   }
 
-  toggleModal(value) {
-    const { isTextAdderShow } = this.state;
+  toggleModal(value, id) {
+    const { isTextAdderShow, isConfirmModalShow } = this.state;
 
-    if (value === 'adder') this.setState({ isTextAdderShow: !isTextAdderShow });
+    if (value === 'adder') this.setState({ isTextAdderShow: !isTextAdderShow, textInput: '' });
+    if (value === 'confirm') {
+      this.setState({
+        textInput: '',
+        isTextAdderShow: false,
+        willBeDeletedPlaylist: id,
+        isConfirmModalShow: !isConfirmModalShow,
+      });
+    }
   }
 
   renderAdder() {
@@ -45,15 +54,12 @@ class PlaylistModal extends React.Component {
           type="text"
           className="playlist-adder__input"
           value={textInput}
-          maxLength={22}
+          maxLength={20}
           onChange={ev => this.setState({ textInput: ev.target.value })}
           placeholder="Playlist title..."
         />
         <Touchable
-          onClick={() => {
-            this.toggleModal('adder');
-            this.setState({ textInput: '' });
-          }}
+          onClick={() => this.toggleModal('adder')}
           icon="fas fa-ban"
           className="button-adder-playlist-cancel"
         />
@@ -61,7 +67,6 @@ class PlaylistModal extends React.Component {
           onClick={() => {
             addPlaylist(textInput);
             this.toggleModal('adder');
-            this.setState({ textInput: '' });
           }}
           icon="fas fa-check-circle"
           className="button-adder-playlist-confirm"
@@ -81,15 +86,24 @@ class PlaylistModal extends React.Component {
         <div className="playlist__list__item" key={item.id} onClick={() => changePlaylist(item.id)}>
           <div className={`selector ${className}`} />
           <span>{item.title}</span>
+          <Touchable
+            onClick={(event) => {
+              event.stopPropagation();
+              this.toggleModal('confirm', item.id);
+            }}
+            icon="fas fa-ban"
+            className="button-playlist-delete"
+          />
         </div>
       );
     });
   }
 
   renderModal() {
-    const { isConfirmModalShow } = this.state;
+    const { isConfirmModalShow, willBeDeletedPlaylist } = this.state;
     const {
       closeFunction,
+      deletePlaylist,
     } = this.props;
 
     if (isConfirmModalShow) {
@@ -100,7 +114,22 @@ class PlaylistModal extends React.Component {
         >
           <div className="playlist__container">
             <h2>Playlist</h2>
-            <span>Are you sure ?</span>
+            <span className="confirm-text">Are you sure ?</span>
+            <Touchable
+              onClick={() => {
+                this.toggleModal('confirm');
+              }}
+              icon="fas fa-ban"
+              className="button-confirm-playlist-cancel"
+            />
+            <Touchable
+              onClick={() => {
+                deletePlaylist(willBeDeletedPlaylist);
+                this.toggleModal('confirm');
+              }}
+              icon="fas fa-check-circle"
+              className="button-confirm-playlist-confirm"
+            />
           </div>
         </Modal>
       );
@@ -137,6 +166,7 @@ PlaylistModal.propTypes = {
   currentPlaylist: PropTypes.object.isRequired,
   addPlaylist: PropTypes.func.isRequired,
   changePlaylist: PropTypes.func.isRequired,
+  deletePlaylist: PropTypes.func.isRequired,
 };
 
 export default PlaylistModal;

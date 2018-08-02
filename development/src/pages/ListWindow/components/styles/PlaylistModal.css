@@ -50,6 +50,13 @@
     background-color: white;
 }
 
+.button-playlist-delete {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    margin-top: -14px;
+}
+
 .playlist-adder {
   padding-left: 10px;
 }
@@ -74,4 +81,20 @@
 
 .button-adder-playlist-confirm {
     right: 10px;
+}
+
+.confirm-text {
+    position: absolute;
+    left: 50%;
+    margin-left: -52px;
+}
+
+.button-confirm-playlist-cancel, .button-confirm-playlist-confirm {
+    position: absolute;
+    top:60%;
+    left: 30%;
+}
+
+.button-confirm-playlist-confirm {
+    left: 60%;
 }
