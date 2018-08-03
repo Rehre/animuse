@@ -91,6 +91,57 @@ position: relative;
     position: absolute;
     left: 50%;
     bottom: 25px;
-    margin-left: -10px;
+    margin-left: -30px;
 }
 
+.modal-description__item--add-to-playlist-button {
+    position: absolute;
+    left: 50%;
+    bottom: 25px;
+    margin-left: -0px;
+}
+
+.playlist-list {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.playlist-list h2 {
+    position: absolute;
+    top: 0px;
+    left: 20px;
+}
+
+.playlist-list .playlist-list__container {
+    position: relative;
+    overflow-y: auto;
+    height: 145px;
+    top: 35px;
+}
+
+.playlist-list__item {
+    height: 30px;
+    padding-left: 5px;
+}
+
+.playlist-list__item:hover{
+    cursor: pointer;
+    background-color: var(--icon-hover-color);
+    color: var(--text-color);
+}
+
+.playlist-list span {
+    font-size: 16px;
+}
+
+.modal-description__item--playlist-back {
+    position: absolute;
+    top: 5px;
+    right: 15px;
+}
+
+.modal-description__item--span {
+    max-width: 200px;
+    overflow: hidden;
+}

@@ -85,7 +85,9 @@ class PlaylistModal extends React.Component {
       return (
         <div className="playlist__list__item" key={item.id} onClick={() => changePlaylist(item.id)}>
           <div className={`selector ${className}`} />
-          <span>{item.title}</span>
+          <div className="playlist__list__item__span">
+            <span>{item.title}</span>
+          </div>
           <Touchable
             onClick={(event) => {
               event.stopPropagation();

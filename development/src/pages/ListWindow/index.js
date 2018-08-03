@@ -288,9 +288,10 @@ class ListWindow extends React.Component {
   }
 
   deletePlaylist(id) {
-    const { playlist } = this.state;
+    const { playlist, currentPlaylist } = this.state;
 
     const newPlaylist = [...playlist];
+    let newCurrentPlaylist = { ...currentPlaylist };
     // delete the playlist from local playlist
     const deletedIndex = newPlaylist.findIndex(item => item.id === id);
     newPlaylist.splice(deletedIndex, 1);
@@ -320,23 +321,30 @@ class ListWindow extends React.Component {
     // get the current playlist
     // if the deleted playlist is in index 0 the give playlist of index 0
     // else give the before index of -1
-    let currentPlaylist = (deletedIndex - 1 <= -1) ? newPlaylist[0] : newPlaylist[deletedIndex - 1];
+    if (newCurrentPlaylist.id === id) {
+      if (deletedIndex - 1 <= -1) {
+        newCurrentPlaylist = newPlaylist[0];
+      } else {
+        newCurrentPlaylist = newPlaylist[deletedIndex - 1];
+      }
+    }
+
     // if newPlaylist is already empty then add default playlist
     // and set current to 0
-    if (newPlaylist.length <= 0) { 
+    if (newPlaylist.length <= 0) {
       newPlaylist.push({
         id: Date.now(),
         title: 'default',
       });
 
-      currentPlaylist = newPlaylist[0];
+      newCurrentPlaylist = newPlaylist[0];
     }
     // save the playlist
     localStorage.setItem('playlist', JSON.stringify(newPlaylist));
     // update the state and change the current playlist with currentPlaylist
     this.setState({
       playlist: newPlaylist,
-    }, () => this.changePlaylist(currentPlaylist.id));
+    }, () => this.changePlaylist(newCurrentPlaylist.id));
   }
 
   deleteSingleListFile(id) {
@@ -695,6 +703,8 @@ class ListWindow extends React.Component {
       selectedItem,
       searchTerm,
       sortValue,
+      playlist,
+      currentPlaylist,
     } = this.state;
 
     if (audiolist.length <= 0) {
@@ -766,6 +776,8 @@ class ListWindow extends React.Component {
           selectedItem={selectedItem}
           onClick={() => this.sendFile(item.id, item)}
           deleteFunction={this.deleteSingleListFile}
+          playlist={playlist}
+          currentPlaylist={currentPlaylist}
         />
       );
     });
@@ -777,6 +789,8 @@ class ListWindow extends React.Component {
       groupByValue,
       grouplist,
       sortValue,
+      playlist,
+      currentPlaylist,
     } = this.state;
 
     const { audiolist } = this.state;
@@ -835,6 +849,8 @@ class ListWindow extends React.Component {
           sortValue={sortValue}
           deleteSingleListFile={this.deleteSingleListFile}
           sendFile={this.sendFile}
+          playlist={playlist}
+          currentPlaylsit={currentPlaylist}
         />
       );
     });
@@ -940,7 +956,7 @@ class ListWindow extends React.Component {
             onClick={() => this.toggleGroupBy('')}
           >
             <div className={`item-wrapper__option__selector ${(groupByValue === '') ? classNameSelected : null}`} />
-            <span>default</span>
+            <span>none</span>
           </div>
           <div
             className="item-wrapper__option item-wrapper__option--folder"

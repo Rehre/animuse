@@ -31,6 +31,11 @@
     cursor: pointer;
 }
 
+.playlist__list__item__span {
+    max-width: 180px;
+    overflow: hidden;
+}
+
 .playlist__list__item span {
     margin-left: 15px;
 }

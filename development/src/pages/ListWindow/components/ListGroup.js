@@ -32,6 +32,8 @@ class ListGroup extends React.Component {
       listValue,
       deleteSingleListFile,
       sendFile,
+      playlist,
+      currentPlaylist,
     } = this.props;
 
     if (audiolist.length <= 0) {
@@ -47,6 +49,8 @@ class ListGroup extends React.Component {
             selectedItem={selectedItem}
             onClick={() => sendFile(item.id, item)}
             deleteFunction={deleteSingleListFile}
+            playlist={playlist}
+            currentPlaylist={currentPlaylist}
           />
         );
       }
@@ -102,6 +106,8 @@ ListGroup.propTypes = {
   listValue: PropTypes.string.isRequired,
   deleteSingleListFile: PropTypes.func.isRequired,
   sendFile: PropTypes.func.isRequired,
+  playlist: PropTypes.array.isRequired,
+  currentPlaylist: PropTypes.object.isRequired,
 };
 
 export default ListGroup;

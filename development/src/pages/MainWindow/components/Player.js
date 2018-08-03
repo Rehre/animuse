@@ -1,3 +1,4 @@
+/* eslint-env browser */
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -21,6 +22,7 @@ class Player extends React.Component {
 
     this.setSongTime = this.setSongTime.bind(this);
     this.setPlayerVolume = this.setPlayerVolume.bind(this);
+    this.runStorageChecker = this.runStorageChecker.bind(this);
     this.changePlayerSong = this.changePlayerSong.bind(this);
     this.togglePlayPause = this.togglePlayPause.bind(this);
     this.toggleLoop = this.toggleLoop.bind(this);
@@ -35,6 +37,8 @@ class Player extends React.Component {
   }
 
   componentDidMount() {
+    this.runStorageChecker();
+
     this.audio.addEventListener('canplay', () => {
       this.audio.play();
       this.setState({ isPlayed: true });
@@ -66,7 +70,24 @@ class Player extends React.Component {
   setPlayerVolume(event) {
     const volume = event.target.value;
 
+    localStorage.setItem('volume', JSON.stringify(volume));
     this.setState({ volume }, () => {
+      this.audio.volume = volume / 100;
+    });
+  }
+
+  runStorageChecker() {
+    const volume = JSON.parse(localStorage.getItem('volume')) || 100;
+    const isLooped = JSON.parse(localStorage.getItem('isLooped')) || false;
+    const isLoopedAll = JSON.parse(localStorage.getItem('isLoopedAll')) || false;
+    const isRandomized = JSON.parse(localStorage.getItem('isRandomized')) || false;
+
+    this.setState({
+      volume,
+      isLooped,
+      isLoopedAll,
+      isRandomized,
+    }, () => {
       this.audio.volume = volume / 100;
     });
   }
@@ -108,15 +129,19 @@ class Player extends React.Component {
 
     if (!isLooped && !isLoopedAll) {
       this.audio.loop = true;
+      localStorage.setItem('isLooped', JSON.stringify(true));
       this.setState({ isLooped: true });
     }
 
     if (isLooped && !isLoopedAll) {
       this.audio.loop = false;
+      localStorage.setItem('isLooped', JSON.stringify(false));
+      localStorage.setItem('isLoopedAll', JSON.stringify(true));
       this.setState({ isLooped: false, isLoopedAll: true });
     }
 
     if (isLoopedAll) {
+      localStorage.setItem('isLoopedAll', JSON.stringify(false));
       this.setState({ isLoopedAll: false });
     }
   }
@@ -124,6 +149,7 @@ class Player extends React.Component {
   toggleRandom() {
     const { isRandomized } = this.state;
 
+    localStorage.setItem('isRandomized', JSON.stringify(!isRandomized));
     this.setState({ isRandomized: !isRandomized });
   }
 

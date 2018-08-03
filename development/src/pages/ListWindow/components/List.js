@@ -1,3 +1,4 @@
+/* eslint-env browser */
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -11,10 +12,14 @@ class List extends React.Component {
 
     this.state = {
       isDescriptionShow: false,
+      isPlaylistModalShow: false,
     };
 
     this.getItemDetail = this.getItemDetail.bind(this);
+    this.moveItemToPlaylist = this.moveItemToPlaylist.bind(this);
     this.toggleDescriptionModal = this.toggleDescriptionModal.bind(this);
+    this.togglePlaylistModal = this.togglePlaylistModal.bind(this);
+    this.renderPlaylistModal = this.renderPlaylistModal.bind(this);
     this.renderDescriptionModal = this.renderDescriptionModal.bind(this);
   }
 
@@ -74,15 +79,59 @@ class List extends React.Component {
     };
   }
 
+  moveItemToPlaylist(playlistItem, id) {
+    const { item } = this.props;
+
+    let newAudioList = JSON.parse(localStorage.getItem('music-list'));
+
+    newAudioList = newAudioList.map((itemX) => {
+      if (itemX.id === item.id) {
+        if (!(itemX.playlist.find(itemY => itemY.id === id))) {
+          itemX.playlist.push(playlistItem);
+        }
+      }
+
+      return itemX;
+    });
+
+    localStorage.setItem('music-list', JSON.stringify(newAudioList));
+  }
+
   toggleDescriptionModal(ev) {
     ev.stopPropagation();
     const { isDescriptionShow } = this.state;
 
-    this.setState({ isDescriptionShow: !isDescriptionShow });
+    this.setState({ isDescriptionShow: !isDescriptionShow, isPlaylistModalShow: false });
+  }
+
+  togglePlaylistModal() {
+    const { isPlaylistModalShow } = this.state;
+
+    this.setState({ isPlaylistModalShow: !isPlaylistModalShow });
+  }
+
+  renderPlaylistModal() {
+    const { playlist, currentPlaylist } = this.props;
+
+    return playlist.map((item) => {
+      if (item.id === currentPlaylist.id) return null;
+
+      return (
+        <div
+          key={item.id}
+          className="playlist-list__item"
+          onClick={() => this.moveItemToPlaylist(item, item.id)}
+        >
+          <div className="modal-description__item--span">
+            <span>{item.title}</span>
+          </div>
+        </div>
+      );
+    });
   }
 
   renderDescriptionModal() {
-    const { isDescriptionShow } = this.state;
+    const { isDescriptionShow, isPlaylistModalShow } = this.state;
     const {
       id,
       titleHeader,
@@ -95,6 +144,28 @@ class List extends React.Component {
     const { deleteFunction } = this.props;
 
     if (!isDescriptionShow) return null;
+    if (isPlaylistModalShow) {
+      return (
+        <Modal
+          closeFunction={this.toggleDescriptionModal}
+          wrapperClassName="modal-item-description"
+        >
+          <div className="modal-description">
+            <div className="playlist-list">
+              <h2>Add to playlist</h2>
+              <Touchable
+                onClick={this.togglePlaylistModal}
+                icon="fas fa-ban"
+                className="modal-description__item--playlist-back"
+              />
+              <div className="playlist-list__container">
+                {this.renderPlaylistModal()}
+              </div>
+            </div>
+          </div>
+        </Modal>
+      );
+    }
 
     const title = titleHeader;
     const artist = artistHeader;
@@ -107,22 +178,22 @@ class List extends React.Component {
         wrapperClassName="modal-item-description"
       >
         <div className="modal-description">
-          <div className="modal-description__item--title">
+          <div className="modal-description__item--title modal-description__item--span">
             <span>Title: {(title.length > 20) ? `${title.substr(0, 20)}...` : title}</span>
           </div>
-          <div className="modal-description__item--artist">
+          <div className="modal-description__item--artist modal-description__item--span">
             <span>Artist: {(artist.length > 20) ? `${artist.substr(0, 20)}...` : artist}</span>
           </div>
-          <div className="modal-description__item--album">
+          <div className="modal-description__item--album modal-description__item--span">
             <span>Album: {(album.length > 20) ? `${album.substr(0, 20)}...` : album}</span>
           </div>
-          <div className="modal-description__item--size">
+          <div className="modal-description__item--size modal-description__item--span">
             <span>Size: {(size.length > 20) ? `${size.substr(0, 20)}...` : size}</span>
           </div>
           <div className="modal-description__item--size">
             <span>Duration: {(duration.length > 20) ? `${duration.substr(0, 20)}...` : duration}</span>
           </div>
-          <div className="modal-description__item--path">
+          <div className="modal-description__item--path modal-description__item--span">
             <span>
               Dir: {(filePath.length > 20) ? `${filePath.substr(0, 20)}...` : filePath}
             </span>
@@ -131,6 +202,11 @@ class List extends React.Component {
             onClick={() => deleteFunction(id)}
             icon="fas fa-ban"
             className="modal-description__item--delete-button"
+          />
+          <Touchable
+            onClick={this.togglePlaylistModal}
+            icon="fas fa-list-alt"
+            className="modal-description__item--add-to-playlist-button"
           />
         </div>
       </Modal>
@@ -178,6 +254,8 @@ List.propTypes = {
   selectedItem: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
   deleteFunction: PropTypes.func.isRequired,
+  playlist: PropTypes.array.isRequired,
+  currentPlaylist: PropTypes.object.isRequired,
 };
 
 export default List;
