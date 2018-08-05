@@ -3,6 +3,7 @@
   "productName": "Animuse",
   "build": {
     "appId": "com.akmal.animuse",
+    "icon": "static/icon.png",
     "win": {
       "target": "nsis"
     }
@@ -20,7 +21,6 @@
   "main": "src/MainManager.js",
   "scripts": {
     "start": "set NODE_ENV=production && electron .",
-    "dev": "electron .",
     "dev:server": "webpack-dev-server --config webpack.dev.config.js",
     "build:react": "webpack",
     "dist": "set NODE_ENV=production && electron-builder"
@@ -42,12 +42,14 @@
     "css-loader": "^0.28.11",
     "electron": "^2.0.3",
     "electron-builder": "^20.19.2",
+    "electron-connect": "^0.6.3",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^17.0.0",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.9.1",
     "file-loader": "^1.1.11",
+    "gulp": "^3.9.1",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.4.0",
     "optimize-css-assets-webpack-plugin": "^4.0.3",
@@ -68,6 +70,7 @@
     "mp3-duration": "^1.1.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-router-dom": "^4.3.1"
+    "react-router-dom": "^4.3.1",
+    "electron-connect": "^0.6.3"
   }
 }

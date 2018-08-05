@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
+const client = require('electron-connect').client;
 
 class WindowManager {
   constructor() {
@@ -87,12 +88,18 @@ class WindowManager {
     this.settingWindow.on('show', () => {
       this.settingWindow.focus();
     });
+
     // run the developer tools if in development mode
     if (isDev) {
       BrowserWindow.addDevToolsExtension('C:\\Users\\WIN 10\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\fmkadmapgofadopljbjfkapdkoienihi\\3.2.4_0');
       this.mainWindow.webContents.openDevTools();
       this.listWindow.webContents.openDevTools();
       this.settingWindow.webContents.openDevTools();
+
+      // Connect to server process
+      client.create(this.mainWindow);
+      client.create(this.listWindow);
+      client.create(this.settingWindow);
     }
   }
 }

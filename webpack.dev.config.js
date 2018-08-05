@@ -52,7 +52,7 @@ module.exports = {
     contentBase: 'dist',
     historyApiFallback: true,
     stats: 'minimal',
-    open: true,
+    open: false,
     hot: true,
   },
 };

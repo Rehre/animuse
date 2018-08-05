@@ -77,6 +77,9 @@ class ListGroup extends React.Component {
     let { listValue } = this.props;
 
     const length = audiolist.filter(item => item.group[groupValue] === listValue).length;
+
+    if (length <= 0) return null;
+
     listValue = (listValue.length > 30) ? `${listValue.substr(0, 30)} ...` : listValue;
     const className = (isContentShowed) ? 'fas fa-chevron-circle-down' : 'fas fa-chevron-circle-up';
 

@@ -850,7 +850,7 @@ class ListWindow extends React.Component {
           deleteSingleListFile={this.deleteSingleListFile}
           sendFile={this.sendFile}
           playlist={playlist}
-          currentPlaylsit={currentPlaylist}
+          currentPlaylist={currentPlaylist}
         />
       );
     });
