@@ -43,6 +43,7 @@ class ListWindow extends React.Component {
     this.toggleModal = this.toggleModal.bind(this);
     this.toggleSorter = this.toggleSorter.bind(this);
     this.toggleGroupBy = this.toggleGroupBy.bind(this);
+    this.toggleGroupShow = this.toggleGroupShow.bind(this);
     this.runStorageChecker = this.runStorageChecker.bind(this);
     this.runTagUpdater = this.runTagUpdater.bind(this);
     this.addPlaylist = this.addPlaylist.bind(this);
@@ -158,6 +159,12 @@ class ListWindow extends React.Component {
     this.setState({ groupByValue: value });
   }
 
+  toggleGroupShow(grouplist) {
+    localStorage.setItem('group-list', JSON.stringify(grouplist));
+
+    this.setState({ grouplist });
+  }
+
   runStorageChecker() {
     const defaultPlaylist = {
       id: Date.now(),
@@ -168,6 +175,7 @@ class ListWindow extends React.Component {
     const playlist = JSON.parse(localStorage.getItem('playlist')) || [defaultPlaylist];
     const currentPlaylist = JSON.parse(localStorage.getItem('current-playlist')) || defaultPlaylist;
     const sortValue = localStorage.getItem('sort-value') || '';
+    const grouplist = JSON.parse(localStorage.getItem('group-list')) || { folder: [] };
     const groupByValue = localStorage.getItem('group-value') || '';
     // if the playlist is not added in the localStorage always add the default playlist
     if (!(JSON.parse(localStorage.getItem('playlist')))) {
@@ -188,6 +196,7 @@ class ListWindow extends React.Component {
       playlist,
       currentPlaylist,
       sortValue,
+      grouplist,
       groupByValue,
     }, this.runTagUpdater);
   }
@@ -218,7 +227,7 @@ class ListWindow extends React.Component {
         if (!(item.group[key])) return;
 
         // if there is group item already in values of newGroupList then dont push
-        if (!(newGroupListValues[index].includes(item.group[key]))) {
+        if (newGroupListValues[index].every(itemX => itemX.title !== item.group[key].title)) {
           newGroupListValues[index].push(item.group[key]);
         }
 
@@ -229,6 +238,8 @@ class ListWindow extends React.Component {
         ipcRenderer.send('get-song-tags', item);
       }
     });
+
+    localStorage.setItem('group-list', JSON.stringify(newGroupList));
 
     this.setState({ grouplist: newGroupList, totalTime, totalSize });
   }
@@ -356,10 +367,7 @@ class ListWindow extends React.Component {
     } = this.state;
 
     const currentItem = audiolist.find(item => item.id === id);
-    const groupValues = {
-      folder: currentItem.group.folder,
-    };
-
+    const groupValues = { folder: currentItem.group.folder };
     // delete total time and duration this item has
     let newTotalTime = 0;
     let newTotalSize = 0;
@@ -379,14 +387,18 @@ class ListWindow extends React.Component {
 
     // delete the group in state this item has
     const newGroupList = {};
-    const newGroupListValues = Object.values(grouplist);
+    let newGroupListValues = Object.values(grouplist.folder);
 
     // if there is still some file has the group then return
-    if (!(newAudioList.some(item => item.group.folder === groupValues.folder))) {
-      newGroupListValues[0] = newGroupListValues[0].filter(item => item !== groupValues.folder);
+    if (!(newAudioList.some(item => item.group.folder.title === groupValues.folder.title))) {
+      newGroupListValues = newGroupListValues.filter((item) => {
+        return item.title !== groupValues.folder.title;
+      });
     }
 
-    newGroupList.folder = newGroupListValues[0];
+    newGroupList.folder = newGroupListValues;
+
+    localStorage.setItem('group-list', JSON.stringify(newGroupList));
 
     let arrTemp = JSON.parse(localStorage.getItem('music-list')) || [];
     this.needToSort = true;
@@ -394,7 +406,6 @@ class ListWindow extends React.Component {
     arrTemp = arrTemp.filter(item => item.id !== id);
     localStorage.setItem('music-list', JSON.stringify(arrTemp));
     arrTemp = []; // clean memory
-
 
     this.setState({
       audiolist: newAudioList,
@@ -439,6 +450,8 @@ class ListWindow extends React.Component {
       return false;
     });
 
+    localStorage.setItem('group-list', JSON.stringify({ folder: [] }));
+
     this.setState({
       audiolist: copy,
       grouplist: {
@@ -472,7 +485,10 @@ class ListWindow extends React.Component {
       title,
       filePath: file.filePath,
       group: {
-        folder,
+        folder: {
+          title: folder,
+          show: true,
+        },
       },
       playlist: [currentPlaylist],
     };
@@ -480,7 +496,7 @@ class ListWindow extends React.Component {
     // set the grouping
     ['folder'].forEach((key, index) => {
       // if the group values from objectfile not included in grouplist state
-      if (!(newGroupListValues[index].includes(objectFile.group[key]))) {
+      if (newGroupListValues[index].every(item => item.title !== objectFile.group[key].title)) {
         // push the values into newGroupListValues array
         newGroupListValues[index].push(objectFile.group[key]);
       }
@@ -496,6 +512,8 @@ class ListWindow extends React.Component {
     arrTemp.push(objectFile);
     localStorage.setItem('music-list', JSON.stringify(arrTemp));
     arrTemp = []; // clean memory
+
+    localStorage.setItem('group-list', JSON.stringify(newGroupList));
 
     this.setState({ audiolist: newAudioList, grouplist: newGroupList }, () => {
       ipcRenderer.send('get-song-tags', objectFile);
@@ -846,6 +864,7 @@ class ListWindow extends React.Component {
           key={index}
           audiolist={audiolist}
           selectedItem={selectedItem}
+          grouplist={grouplist}
           groupValue={groupByValue}
           listValue={item}
           sortValue={sortValue}
@@ -853,6 +872,7 @@ class ListWindow extends React.Component {
           sendFile={this.sendFile}
           playlist={playlist}
           currentPlaylist={currentPlaylist}
+          toggleGroupShow={this.toggleGroupShow}
         />
       );
     });

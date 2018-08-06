@@ -143,5 +143,6 @@ position: relative;
 
 .modal-description__item--span {
     max-width: 200px;
+    height: 25px;
     overflow: hidden;
 }
