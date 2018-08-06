@@ -169,7 +169,7 @@ class ListWindow extends React.Component {
     const currentPlaylist = JSON.parse(localStorage.getItem('current-playlist')) || defaultPlaylist;
     const sortValue = localStorage.getItem('sort-value') || '';
     const groupByValue = localStorage.getItem('group-value') || '';
-
+    // if the playlist is not added in the localStorage always add the default playlist
     if (!(JSON.parse(localStorage.getItem('playlist')))) {
       localStorage.setItem('playlist', JSON.stringify(playlist));
       localStorage.setItem('current-playlist', JSON.stringify(currentPlaylist));
@@ -479,10 +479,12 @@ class ListWindow extends React.Component {
 
     // set the grouping
     ['folder'].forEach((key, index) => {
+      // if the group values from objectfile not included in grouplist state
       if (!(newGroupListValues[index].includes(objectFile.group[key]))) {
+        // push the values into newGroupListValues array
         newGroupListValues[index].push(objectFile.group[key]);
       }
-
+      // set the new group list values in group state with the same key
       newGroupList[key] = newGroupListValues[index];
     });
 

@@ -41,7 +41,7 @@
     "babel-preset-stage-1": "^6.24.1",
     "css-loader": "^0.28.11",
     "electron": "^2.0.3",
-    "electron-builder": "^20.19.2",
+    "electron-builder": "^19.56.2",
     "electron-connect": "^0.6.3",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^17.0.0",
@@ -62,7 +62,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.1.0",
-    "btoa": "^1.2.1",
+    "electron-connect": "^0.6.3",
     "electron-is-dev": "^0.3.0",
     "immutability-helper": "^2.7.1",
     "jpeg-js": "^0.3.4",
@@ -70,7 +70,6 @@
     "mp3-duration": "^1.1.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-router-dom": "^4.3.1",
-    "electron-connect": "^0.6.3"
+    "react-router-dom": "^4.3.1"
   }
 }

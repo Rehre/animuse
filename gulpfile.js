@@ -2,7 +2,7 @@ const gulp = require('gulp');
 const { spawn } = require('child_process');
 const electron = require('electron-connect').server.create();
 
-gulp.task('default', ['view:server', 'serve:client'], () => console.log('running tasks'));
+gulp.task('default', ['view:server', 'serve:client'], () => console.log('task completed'));
 
 gulp.task('view:server', () => {
   console.log('running view server...');
