@@ -1,4 +1,5 @@
 const gulp = require('gulp');
+const rimraf = require('rimraf');
 const { spawn } = require('child_process');
 const electron = require('electron-connect').server.create();
 
@@ -25,5 +26,21 @@ gulp.task('serve:client', () => {
   gulp.watch(['./src/*.js', './src/utils/*.js', './src/userDefaultSetting/*.js'], () => {
     console.log('Restarting...');
     electron.restart(null, () => console.log('restarted.'));
+  });
+});
+
+gulp.task('build:release', () => {
+  console.log('removing old production build...');
+  rimraf('./production', () => {
+    console.log('old production build deleted.');
+
+    const cmd = spawn('cmd', { detached: true });
+
+    console.log('building new production build...');
+    cmd.stdin.write('npm run build:react\n');
+    console.log('running distributed release...');
+    cmd.stdin.write('npm run dist\n');
+
+    cmd.kill();
   });
 });

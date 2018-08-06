@@ -823,7 +823,7 @@ class ListWindow extends React.Component {
     if (sortValue.length > 0 && this.needToSort) {
       grouplist[groupByValue].forEach((item) => {
         // get the item that match this grouping value
-        let list = audiolist.filter(itemX => itemX.group[groupByValue] === item);
+        let list = audiolist.filter(itemX => itemX.group[groupByValue].title === item.title);
         // sort the matched item
         list.sort((a, b) => {
           let titleA = a[sortValue];
